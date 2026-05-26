@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise por Categoria - Ecometric</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+    <!-- Navegação -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">Ecometric</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link active">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link">Veículos</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🚗 Análise por Categoria</h1>
+            <p class="hero-subtitle">Impacto ambiental de cada tipo de veículo</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <!-- Tabela de Dados -->
+        <section class="chart-container full-width">
+            <h2>📊 Resumo por Categoria de Veículo</h2>
+            <div id="table-container">
+                <table class="data-table" id="categoriaTable">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Passagens</th>
+                            <th>Tempo Economizado (min)</th>
+                            <th>Combustível (ml)</th>
+                            <th>CO₂ Evitado (g)</th>
+                            <th>Árvores (equiv)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 2rem;">
+                                ⏳ Carregando dados...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="chart-row" style="margin-top: var(--spacing-xl);">
+            <div class="chart-container">
+                <h2>💨 CO₂ Evitado por Categoria</h2>
+                <canvas id="co2Chart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>⛽ Combustível Poupado por Categoria</h2>
+                <canvas id="fuelChart"></canvas>
+            </div>
+        </section>
+
+        <section class="chart-row">
+            <div class="chart-container">
+                <h2>⏱️ Tempo Economizado por Categoria</h2>
+                <canvas id="timeChart"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h2>🌳 Equivalência em Árvores</h2>
+                <canvas id="treeChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>🌱 Ecometric © 2024 - Inteligência Ambiental para Mobilidade Urbana</p>
+        </footer>
+    </main>
+
+    <style>
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-md);
+        }
+
+        .data-table thead {
+            background: var(--very-light-green);
+            border-bottom: 2px solid var(--primary-green);
+        }
+
+        .data-table th {
+            padding: var(--spacing-md);
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-green);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-dark);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--very-light-green);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #table-container {
+            overflow-x: auto;
+        }
+    </style>
+
+    <script src="{{ url_for('static', filename='js/categorias.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecometric - Dashboard Sustentável</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+    <!-- Navegação -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">Ecometric</span>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link active">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link">Veículos</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🌍 Seu Impacto Ambiental</h1>
+            <p class="hero-subtitle">Transformando mobilidade urbana em sustentabilidade mensurável</p>
+        </div>
+        <div class="hero-gradient"></div>
+    </section>
+
+    <!-- Métricas Principais -->
+    <main class="container">
+        <section class="metrics-grid">
+            <!-- CO₂ Evitado -->
+            <div class="metric-card co2-card">
+                <div class="metric-header">
+                    <h3>CO₂ Evitado</h3>
+                    <span class="metric-icon">💨</span>
+                </div>
+                <div class="metric-value" id="co2-value">0</div>
+                <div class="metric-unit">gramas</div>
+                <div class="metric-bar">
+                    <div class="metric-bar-fill" id="co2-bar"></div>
+                </div>
+            </div>
+
+            <!-- Tempo Economizado -->
+            <div class="metric-card time-card">
+                <div class="metric-header">
+                    <h3>Tempo Economizado</h3>
+                    <span class="metric-icon">⏱️</span>
+                </div>
+                <div class="metric-value" id="time-value">0</div>
+                <div class="metric-unit">minutos</div>
+                <div class="metric-bar">
+                    <div class="metric-bar-fill" id="time-bar"></div>
+                </div>
+            </div>
+
+            <!-- Combustível Poupado -->
+            <div class="metric-card fuel-card">
+                <div class="metric-header">
+                    <h3>Combustível Poupado</h3>
+                    <span class="metric-icon">⛽</span>
+                </div>
+                <div class="metric-value" id="fuel-value">0</div>
+                <div class="metric-unit">mililitros</div>
+                <div class="metric-bar">
+                    <div class="metric-bar-fill" id="fuel-bar"></div>
+                </div>
+            </div>
+
+            <!-- Árvores Preservadas -->
+            <div class="metric-card tree-card">
+                <div class="metric-header">
+                    <h3>Árvores Preservadas</h3>
+                    <span class="metric-icon">🌳</span>
+                </div>
+                <div class="metric-value" id="tree-value">0</div>
+                <div class="metric-unit">equivalente</div>
+                <div class="metric-bar">
+                    <div class="metric-bar-fill" id="tree-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gráficos -->
+        <section class="charts-section">
+            <div class="chart-container full-width">
+                <h2>📊 Impacto ao Longo do Tempo</h2>
+                <canvas id="timelineChart"></canvas>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h2>🚗 Impacto por Categoria</h2>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h2>🏆 Top Veículos</h2>
+                    <canvas id="rankingChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Total de Passagens -->
+        <section class="stats-section">
+            <div class="stat-box">
+                <h3>Total de Passagens</h3>
+                <div class="stat-number" id="total-passages">0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Veículos Participantes</h3>
+                <div class="stat-number" id="total-vehicles">0</div>
+            </div>
+        </section>
+
+        <!-- Rodapé -->
+        <footer class="footer">
+            <p>🌱 Ecometric © 2024 - Inteligência Ambiental para Mobilidade Urbana</p>
+            <p>Reduzindo emissões, um trajeto por vez</p>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
