@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ECOMETRIC - Ranking Verde</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">ECOMETRIC</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link active">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link">Veículos</a></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-gradient"></div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">
+                🏆 Ranking Verde
+            </h1>
+
+            <p class="hero-subtitle">
+                Veículos que mais contribuíram para a redução da emissão de CO₂
+            </p>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO -->
+    <main class="container">
+
+        <div class="ranking-card">
+
+            <table id="rankingTable" class="ranking-table">
+
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Placa</th>
+                        <th>CO₂ Evitado (g)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbody">
+
+                    <tr>
+                        <td colspan="3">
+                            Carregando ranking...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>🌱 ECOMETRIC - Dashboard de Impacto Ambiental</p>
+        <p>Desenvolvido para monitoramento sustentável</p>
+    </footer>
+
+    <script>
+
+        fetch('/api/ranking')
+            .then(response => response.json())
+            .then(data => {
+
+                const tbody = document.getElementById('tbody');
+
+                if (!data || data.length === 0) {
+
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3">
+                                Nenhum dado encontrado
+                            </td>
+                        </tr>
+                    `;
+
+                    return;
+                }
+
+                tbody.innerHTML = '';
+
+                data.forEach(item => {
+
+                    let medalha = '';
+                    let classe = '';
+
+                    if (item.posicao === 1) {
+                        medalha = '🥇';
+                        classe = 'gold';
+                    }
+                    else if (item.posicao === 2) {
+                        medalha = '🥈';
+                        classe = 'silver';
+                    }
+                    else if (item.posicao === 3) {
+                        medalha = '🥉';
+                        classe = 'bronze';
+                    }
+
+                    tbody.innerHTML += `
+                        <tr class="${classe}">
+                            <td class="position">
+                                ${medalha} ${item.posicao}
+                            </td>
+
+                            <td>
+                                <strong>${item.placa}</strong>
+                            </td>
+
+                            <td class="co2-value">
+                                ${Number(item.co2_g).toFixed(2)} g
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            })
+            .catch(error => {
+
+                console.error(error);
+
+                document.getElementById('tbody').innerHTML = `
+                    <tr>
+                        <td colspan="3">
+                            Erro ao carregar ranking
+                        </td>
+                    </tr>
+                `;
+            });
+
+    </script>
+
+</body>
+
+</html>

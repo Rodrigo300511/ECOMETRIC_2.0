@@ -19,6 +19,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 from src.database import conectar, fechar_conexao
 from src.impact_service import metricas_globais, ranking_usuarios_verdes
 
+from src.services import cadastrar_veiculo_por_modelo, listar_modelos
+from src.impact_service import obter_painel_impacto
+
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -273,6 +276,130 @@ def server_error(error):
 def health():
     """Verificar saúde da aplicação."""
     return jsonify({'status': 'ok'})
+# =========================================================
+# ROTAS DA FEATURE CLIENTE
+# =========================================================
+
+@app.route('/api/modelos', methods=['GET'])
+def api_listar_modelos():
+    try:
+        modelos = listar_modelos()
+        lista_modelos = [{'id': m[0], 'nome': m[1], 'marca': m[2], 'ano': m[3], 'categoria': m[4]} for m in modelos]
+        return jsonify(lista_modelos)
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/api/cliente/cadastro', methods=['POST'])
+def api_cadastrar_veiculo():
+    try:
+        dados = request.get_json()
+        placa = dados.get('placa', '').strip().upper()
+        modelo_id = dados.get('modelo_id')
+
+        if not placa or not modelo_id:
+            return jsonify({'erro': 'Placa e Modelo são obrigatórios.'}), 400
+
+        cadastrar_veiculo_por_modelo(placa, int(modelo_id))
+        return jsonify({'status': 'sucesso', 'mensagem': f'Veículo {placa} registado com sucesso!'}), 201
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+@app.route('/api/cliente/<placa>', methods=['GET'])
+def api_dados_cliente(placa):
+    try:
+        placa = placa.strip().upper()
+        painel = obter_painel_impacto(placa)
+        
+        if not painel or painel.get('total_passagens', 0) == 0:
+            return jsonify({'perfil': painel, 'historico': [], 'evolucao': {'meses': [], 'co2': []}})
+
+        conn = conectar()
+        cursor = conn.cursor()
+        
+        # Histórico de passagens
+        cursor.execute("""
+            SELECT i.data_hora, i.tipo, i.co2_evitar_g, i.tempo_poupado, p.capcoins_ganhos
+            FROM impacto_ambiental i
+            JOIN passagens p ON i.placa = p.placa AND i.data_hora = p.data_hora
+            WHERE i.placa = ? ORDER BY i.data_hora DESC
+        """, (placa,))
+        historico = [{'data_hora': p[0], 'local': 'Shopping Center', 'co2_evitado': p[2], 'tempo_poupado': p[3], 'capcoins': p[4]} for p in cursor.fetchall()]
+
+        # Evolução Mensal
+        cursor.execute("""
+            SELECT CAST(substr(data_hora, 1, 7) as TEXT) as mes, SUM(co2_evitar_g)
+            FROM impacto_ambiental WHERE placa = ? GROUP BY mes ORDER BY mes ASC
+        """, (placa,))
+        dados_evolucao = cursor.fetchall()
+        evolucao = {'meses': [row[0] for row in dados_evolucao], 'co2': [row[1] for row in dados_evolucao]}
+
+        fechar_conexao(conn)
+        return jsonify({'perfil': painel, 'historico': historico, 'evolucao': evolucao})
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+@app.route('/api/cliente/usar_taggy', methods=['POST'])
+def api_usar_taggy():
+    """Simula o uso da Taggy em tempo real, gerando impacto e pontos."""
+    try:
+        dados = request.get_json()
+        placa = dados.get('placa', '').strip().upper()
+        local = dados.get('local', 'Shopping Tacaruna') # Local simulado
+
+        if not placa:
+            return jsonify({'erro': 'Placa é obrigatória.'}), 400
+
+        conn = conectar()
+        cursor = conn.cursor()
+
+        # 1. Buscar os dados técnicos do veículo para calcular o impacto corretamente
+        cursor.execute("""
+            SELECT c.consumo_litro_hora, c.fator_co2
+            FROM veiculos v
+            JOIN modelos m ON v.modelo_id = m.id
+            JOIN categorias c ON m.categoria_id = c.id
+            WHERE v.placa = ?
+        """, (placa,))
+        veiculo = cursor.fetchone()
+
+        if not veiculo:
+            fechar_conexao(conn)
+            return jsonify({'erro': 'Veículo não encontrado.'}), 404
+
+        consumo_litro_hora, fator_co2 = veiculo
+
+        # 2. Regras de Negócio (8 min poupados, 3 CapCoins ganhos)
+        tempo_poupado = 8.0
+        litros_poupados = consumo_litro_hora * (tempo_poupado / 60.0)
+        combustivel_poupado_ml = litros_poupados * 1000.0
+        co2_evitar_g = litros_poupados * fator_co2
+        capcoins = 3
+        data_hora = datetime.now().isoformat()
+
+        # 3. Inserir a nova Passagem
+        cursor.execute("""
+            INSERT INTO passagens (placa, tipo, capcoins_ganhos, data_hora)
+            VALUES (?, ?, ?, ?)
+        """, (placa, local, capcoins, data_hora))
+
+        # 4. Inserir o Impacto Ambiental
+        cursor.execute("""
+            INSERT INTO impacto_ambiental (placa, tipo, tempo_poupado, combustivel_poupado_ml, co2_evitar_g, data_hora)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (placa, local, tempo_poupado, combustivel_poupado_ml, co2_evitar_g, data_hora))
+
+        # 5. Atualizar a Carteira de CapCoins do Cliente
+        cursor.execute("""
+            INSERT INTO saldo_capcoins (placa, saldo)
+            VALUES (?, ?)
+            ON CONFLICT(placa) DO UPDATE SET saldo = saldo + ?
+        """, (placa, capcoins, capcoins))
+
+        conn.commit()
+        fechar_conexao(conn)
+
+        return jsonify({'status': 'sucesso', 'mensagem': 'Passagem registada com sucesso!'})
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
 
 
 if __name__ == '__main__':

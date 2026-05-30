@@ -394,3 +394,144 @@ atualizarNavegacao();
 
 // Atualizar ao mudar de página
 window.addEventListener('popstate', atualizarNavegacao);
+
+
+// =========================================================
+// PASSO 3: LÓGICA DA ÁREA DO CLIENTE (NOVA FEATURE)
+// =========================================================
+let chartClienteInstance = null;
+
+// Alternar entre as abas Visão Geral e Área do Cliente
+function alternarAba(abaNome) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = '#333';
+    });
+
+    if (abaNome === 'visao-geral') {
+        document.getElementById('tab-visao-geral').style.display = 'block';
+        event.target.style.backgroundColor = '#2ecc71';
+        event.target.style.color = 'white';
+    } else if (abaNome === 'area-cliente') {
+        document.getElementById('tab-area-cliente').style.display = 'block';
+        event.target.style.backgroundColor = '#2ecc71';
+        event.target.style.color = 'white';
+        // Carrega os modelos de carros assim que a aba é aberta
+        carregarModelosDropdown(); 
+    }
+}
+
+// Buscar modelos na API para preencher o formulário de registo
+function carregarModelosDropdown() {
+    axios.get('/api/modelos').then(response => {
+        const select = document.getElementById('cad-modelo');
+        select.innerHTML = '<option value="">Selecione o Modelo</option>';
+        response.data.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.marca} ${m.nome} (${m.ano})</option>`;
+        });
+    }).catch(err => console.error('Erro ao carregar modelos:', err));
+}
+
+// Enviar dados para registar um novo veículo
+function executarCadastroVeiculo() {
+    const placa = document.getElementById('cad-placa').value;
+    const modeloId = document.getElementById('cad-modelo').value;
+    const msg = document.getElementById('msg-cadastro');
+
+    axios.post('/api/cliente/cadastro', { placa, modelo_id: modeloId })
+        .then(res => {
+            msg.innerHTML = `<span style="color: green;">${res.data.mensagem}</span>`;
+            document.getElementById('cad-placa').value = ''; // Limpa o campo
+        })
+        .catch(err => msg.innerHTML = `<span style="color: red;">${err.response.data.erro}</span>`);
+}
+
+// Buscar e exibir os dados de impacto do cliente
+function carregarDadosCliente() {
+    const placa = document.getElementById('input-placa-login').value;
+    if (!placa) return alert('Por favor, introduza uma placa!');
+
+    axios.get(`/api/cliente/${placa}`).then(response => {
+        const data = response.data;
+        
+        // Mostra o dashboard individual
+        document.getElementById('dashboard-individual-cliente').style.display = 'block';
+        document.getElementById('txt-placa-perfil').innerText = placa.toUpperCase();
+        
+        // Atualiza os cartões de métricas (Trata casos de veículos novos sem dados)
+        document.getElementById('cli-co2').innerText = `${data.perfil.co2_total_g ? data.perfil.co2_total_g.toFixed(1) : 0}g`;
+        document.getElementById('cli-arvores').innerText = data.perfil.equivalente_arvores ? data.perfil.equivalente_arvores.toFixed(2) : 0;
+        document.getElementById('cli-capcoins').innerText = data.perfil.saldo_capcoins || 0;
+
+        // Atualiza a tabela de histórico
+        const tbody = document.getElementById('tbody-historico-cliente');
+        tbody.innerHTML = '';
+        if (data.historico.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">Ainda não existem registos para este veículo.</td></tr>';
+        } else {
+            data.historico.forEach(p => {
+                const dataFormatada = new Date(p.data_hora).toLocaleString('pt-PT');
+                tbody.innerHTML += `<tr>
+                    <td style="padding:12px 10px;">${dataFormatada}</td>
+                    <td style="padding:12px 10px;">${p.local}</td>
+                    <td style="padding:12px 10px;">${p.tempo_poupado}m</td>
+                    <td style="padding:12px 10px; color:#2ecc71; font-weight:bold;">+${p.capcoins}</td>
+                </tr>`;
+            });
+        }
+
+        // Renderiza o gráfico de evolução
+        const ctx = document.getElementById('chartEvolucaoCliente').getContext('2d');
+        if (chartClienteInstance) chartClienteInstance.destroy(); // Limpa o gráfico anterior
+        chartClienteInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.evolucao.meses,
+                datasets: [{ 
+                    label: 'CO₂ Evitado (g)', 
+                    data: data.evolucao.co2, 
+                    borderColor: '#2ecc71', 
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)', 
+                    fill: true,
+                    tension: 0.3 
+                }]
+            }
+        });
+    }).catch(() => alert('Erro ao procurar dados. Tem a certeza que a placa está correta?'));
+}
+// ==========================================
+// SIMULAR USO DA TAGGY EM TEMPO REAL
+// ==========================================
+function simularUsoTaggy(botao) {
+    const placa = document.getElementById('txt-placa-perfil').innerText;
+    if (!placa || placa === '-') return alert('Aceda ao seu painel primeiro.');
+
+    // Efeito visual de carregamento no botão
+    const textoOriginal = botao.innerHTML;
+    botao.innerHTML = 'A abrir catraca... ⏳';
+    botao.disabled = true;
+    botao.style.backgroundColor = '#e67e22';
+
+    // Faz o pedido à nova rota da API
+    axios.post('/api/cliente/usar_taggy', { placa: placa, local: 'Shopping Tacaruna (Demonstração)' })
+        .then(response => {
+            // Garante que a placa está no input de busca para podermos recarregar
+            document.getElementById('input-placa-login').value = placa;
+            
+            // Recarrega os dados da tela imediatamente!
+            carregarDadosCliente();
+            
+            // Avisa o utilizador da gamificação
+            alert('✅ Catraca aberta sem filas!\n\nVocê poupou combustível, ajudou o ambiente e ganhou +3 CapCoins!');
+        })
+        .catch(error => {
+            alert('Erro ao registar a passagem: ' + (error.response?.data?.erro || 'Erro desconhecido.'));
+        })
+        .finally(() => {
+            // Restaura o botão
+            botao.innerHTML = textoOriginal;
+            botao.disabled = false;
+            botao.style.backgroundColor = '#f39c12';
+        });
+}

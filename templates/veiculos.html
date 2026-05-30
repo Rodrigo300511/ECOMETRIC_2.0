@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veículos - Ecometric</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+
+    <!-- Navegação -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">Ecometric</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link active">Veículos</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🚗 Veículos Participantes</h1>
+            <p class="hero-subtitle">
+                Monitoramento detalhado de impacto ambiental por veículo
+            </p>
+        </div>
+        <div class="hero-gradient"></div>
+    </section>
+
+    <!-- Conteúdo -->
+    <main class="container">
+
+        <div class="chart-container">
+
+            <h2>🚘 Lista de Veículos</h2>
+
+            <div style="overflow-x:auto;">
+
+                <table
+                    style="
+                    width:100%;
+                    border-collapse:collapse;
+                    margin-top:20px;
+                    "
+                >
+
+                    <thead>
+
+                        <tr style="background:#10b981;color:white;">
+
+                            <th style="padding:14px;">Placa</th>
+                            <th style="padding:14px;">Marca</th>
+                            <th style="padding:14px;">Modelo</th>
+                            <th style="padding:14px;">Categoria</th>
+                            <th style="padding:14px;">Passagens</th>
+                            <th style="padding:14px;">CO₂ Evitado (g)</th>
+                            <th style="padding:14px;">CapCoins</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="tbody">
+
+                        <tr>
+                            <td colspan="7" style="padding:20px;text-align:center;">
+                                Carregando veículos...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        try {
+
+            const response = await axios.get('/api/veiculos');
+
+            const dados = response.data;
+
+            const tbody = document.getElementById('tbody');
+
+            if (!dados.length) {
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="padding:20px;text-align:center;">
+                            Nenhum veículo encontrado
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            tbody.innerHTML = dados.map(v => `
+
+                <tr>
+
+                    <td style="padding:12px;">${v.placa}</td>
+
+                    <td style="padding:12px;">${v.marca}</td>
+
+                    <td style="padding:12px;">${v.modelo}</td>
+
+                    <td style="padding:12px;">${v.categoria}</td>
+
+                    <td style="padding:12px;">${v.passagens}</td>
+
+                    <td style="padding:12px;color:#10b981;font-weight:bold;">
+                        ${v.co2_g}
+                    </td>
+
+                    <td style="padding:12px;">
+                        🪙 ${v.capcoins}
+                    </td>
+
+                </tr>
+
+            `).join('');
+
+        }
+
+        catch(error) {
+
+            console.error(error);
+
+            document.getElementById('tbody').innerHTML = `
+                <tr>
+                    <td colspan="7"
+                        style="
+                        color:red;
+                        padding:20px;
+                        text-align:center;
+                        ">
+                        Erro ao carregar veículos
+                    </td>
+                </tr>
+            `;
+        }
+
+    });
+
+    </script>
+
+</body>
+</html>

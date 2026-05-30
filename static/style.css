@@ -543,3 +543,151 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--dark-green);
 }
+
+/* ====================================================
+   VEÍCULOS
+   ==================================================== */
+
+.veiculos-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.veiculos-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.veiculos-header h1 {
+    font-size: 3rem;
+    font-weight: 900;
+    background: var(--gradient-green);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.veiculos-header p {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+/* ====================================================
+   CARDS DE RESUMO
+   ==================================================== */
+
+.veiculos-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.veiculo-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    text-align: center;
+    border-top: 4px solid var(--primary-green);
+}
+
+.veiculo-stat-card h3 {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.veiculo-stat-card .value {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--dark-green);
+}
+
+/* ====================================================
+   TABELA
+   ==================================================== */
+
+.veiculos-table-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.veiculos-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.veiculos-table thead {
+    background: var(--gradient-green);
+    color: white;
+}
+
+.veiculos-table th {
+    padding: 18px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.veiculos-table td {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.veiculos-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.veiculos-table tbody tr:hover {
+    background: var(--very-light-green);
+}
+
+.veiculos-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* ====================================================
+   BADGES
+   ==================================================== */
+
+.badge-categoria {
+    background: var(--light-green);
+    color: var(--dark-green);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.capcoins {
+    font-weight: bold;
+    color: #f59e0b;
+}
+
+.co2 {
+    font-weight: bold;
+    color: var(--dark-green);
+}
+
+/* ====================================================
+   RESPONSIVO
+   ==================================================== */
+
+@media (max-width: 900px) {
+
+    .veiculos-table-container {
+        overflow-x: auto;
+    }
+
+    .veiculos-table {
+        min-width: 900px;
+    }
+
+    .veiculos-header h1 {
+        font-size: 2rem;
+    }
+}
