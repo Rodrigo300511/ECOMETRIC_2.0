@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área do Cliente - Ecometric</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">Ecometric</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link active">Meu Painel</a></li>
+                <li><a href="/ranking" class="nav-link">Ranking Geral</a></li>
+                <li><a href="/logout" class="nav-link" style="color: #dc2626; font-weight: bold;">Sair 🚪</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Bem-vindo, Cliente Ecometric!</h1>
+            <p class="hero-subtitle">Acompanhe as métricas de impacto sustentável do veículo: <strong id="lbl-placa" style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 6px; font-family: monospace;">{{ placa }}</strong></p>
+        </div>
+    </section>
+
+    <main class="container">
+        
+        <section class="card" style="margin-bottom: 30px; background: #f0fdf4; border: 1px solid #bbf7d0;">
+            <h3 style="color: #166534; margin-top: 0;">🚀 Simulador de Passagem em Tempo Real (Taggy)</h3>
+            <p style="color: #1e293b; font-size: 0.9rem;">Clique no botão para simular que o seu carro passou por um ponto parceiro Ecometric (pedágio/estacionamento) economizando tempo e CO₂.</p>
+            <button id="btn-simular-taggy" class="btn-login" style="width: auto; padding: 10px 20px; background: #10b981; border: none; border-radius: 6px; color: white; cursor: pointer; font-weight: bold;">
+                Simular Passagem Agora 🚗💨
+            </button>
+            <span id="msg-simulador" style="margin-left: 15px; font-weight: 500;"></span>
+        </section>
+
+        <div class="metrics-grid">
+            <div class="card metric-card">
+                <div class="metric-title">Passagens Registradas</div>
+                <div class="metric-value" id="res-passagens">0</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-title">CO₂ Evitado Acumulado</div>
+                <div class="metric-value" id="res-co2" style="color: var(--primary-green, #10b981);">0.00 g</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-title">Carteira de CapCoins</div>
+                <div class="metric-value" id="res-capcoins" style="color: #eab308;">🪙 0</div>
+            </div>
+            <div class="card metric-card">
+                <div class="metric-title">Árvores Salvas (Eq.)</div>
+                <div class="metric-value" id="res-arvores" style="color: #047857;">🌳 0.0</div>
+            </div>
+        </div>
+
+        <section class="card" style="margin-top: 30px;">
+            <h2 class="card-title">📉 Minha Evolução Mensal de CO₂ Evitado</h2>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="chart-cliente-co2"></canvas>
+            </div>
+        </section>
+
+        <section class="table-container" style="margin-top: 30px;">
+            <h2 class="card-title">📋 Meu Histórico de Passagens Recentes</h2>
+            <table class="veiculos-table">
+                <thead>
+                    <tr>
+                        <th>Data e Hora</th>
+                        <th>Local do Registro</th>
+                        <th>Tempo Poupado (min)</th>
+                        <th>CO₂ Evitado</th>
+                        <th>Recompensa</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-historico">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 20px;">⏳ Buscando seu histórico...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        window.CLIENTE_PLACA = "{{ placa }}";
+    </script>
+    <script src="{{ url_for('static', filename='cliente.js') }}"></script>
+</body>
+</html>

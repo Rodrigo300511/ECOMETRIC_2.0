@@ -6,9 +6,10 @@ Aplicação web responsável por:
 - Mostrar dashboards por categoria
 - Gerar gráficos interativos
 - Apresentar rankings de veículos
+- Gerenciar sessões e fluxos de Visão Geral vs Área do Cliente
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 from datetime import datetime, timedelta
 import json
 import sys
@@ -18,42 +19,119 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from src.database import conectar, fechar_conexao
 from src.impact_service import metricas_globais, ranking_usuarios_verdes
-
 from src.services import cadastrar_veiculo_por_modelo, listar_modelos
 from src.impact_service import obter_painel_impacto
 
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
-# Desabilitar cache para desenvolvimento
+# Configurações do servidor e segurança de Sessão
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# Chave secreta obrigatória para assinar os cookies de sessão de forma segura
+app.secret_key = os.environ.get('SECRET_KEY', 'ecometric_secret_token_key_9876')
 
 
 # =========================================================
-# ROTAS DO DASHBOARD
+# FLUXO DE COMPORTAMENTO E CONTROLE DE SESSÃO (AUTENTICAÇÃO)
+# =========================================================
+
+@app.route('/login')
+def login_page():
+    """Renderiza a página de autenticação (Portal de Login)."""
+    # Se já estiver autenticado, redireciona para o fluxo da home
+    if 'perfil' in session:
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    """Limpa a sessão atual do usuário e redireciona para o login."""
+    session.clear()
+    return redirect(url_for('login_page'))
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    """API: Processa as credenciais de entrada e define o escopo do usuário."""
+    try:
+        dados = request.get_json() or {}
+        usuario = dados.get('usuario', '').strip()
+        senha = dados.get('senha', '')
+
+        if not usuario or not senha:
+            return jsonify({'erro': 'Usuário/Placa e senha são obrigatórios.'}), 400
+
+        # 1. Validação do Perfil Administrativo (Visão Geral)
+        if usuario.lower() == 'admin' and senha == 'admin123':
+            session['usuario_logado'] = 'admin'
+            session['perfil'] = 'admin'
+            return jsonify({'perfil': 'admin'})
+
+        # 2. Validação de Cliente (Usa a Placa do Carro como identificador de Usuário)
+        # Verifica se o formato bate minimamente com um padrão de identificação veicular
+        elif len(usuario) >= 7 and senha == '123456':
+            placa_formatada = usuario.upper()
+            
+            # Validação no banco de dados para garantir integridade (evitar login de placa fantasma)
+            conn = conectar()
+            cursor = conn.cursor()
+            cursor.execute("SELECT placa FROM veiculos WHERE placa = ?", (placa_formatada,))
+            veiculo_existe = cursor.fetchone()
+            fechar_conexao(conn)
+
+            if not veiculo_existe:
+                return jsonify({'erro': 'Esta placa não consta como cadastrada no sistema.'}), 404
+
+            session['usuario_logado'] = placa_formatada
+            session['perfil'] = 'cliente'
+            session['placa_cliente'] = placa_formatada
+            
+            return jsonify({
+                'perfil': 'cliente',
+                'placa': placa_formatada
+            })
+
+        return jsonify({'erro': 'Credenciais de acesso incorretas.'}), 401
+
+    except Exception as e:
+        return jsonify({'erro': f'Erro interno no servidor: {str(e)}'}), 500
+
+
+# =========================================================
+# ROTAS DO DASHBOARD (VISÕES CONDICIONAIS)
 # =========================================================
 
 @app.route('/')
 def index():
-    """Página inicial com métricas globais."""
+    """Página de entrada com bifurcação condicional baseada na Sessão."""
+    # Se não houver uma sessão ativa, força o login
+    if 'perfil' not in session:
+        return redirect(url_for('login_page'))
     
-    try:
-        metricas = metricas_globais()
-        
-        return render_template('index.html', metricas=metricas)
-    
-    except Exception as e:
-        return f"Erro: {str(e)}", 500
+    # Bifurcação 1: Administrador vê a Visão Geral Completa (Métricas Globais)
+    if session['perfil'] == 'admin':
+        try:
+            metricas = metricas_globais()
+            return render_template('index.html', metricas=metricas, perfil='admin')
+        except Exception as e:
+            return f"Erro ao processar visão geral: {str(e)}", 500
+            
+    # Bifurcação 2: Cliente vê estritamente o seu Painel Individualizado (Área do Cliente)
+    elif session['perfil'] == 'cliente':
+        placa = session.get('placa_cliente')
+        return render_template('cliente.html', placa=placa, perfil='cliente')
 
 
 @app.route('/api/metricas')
 def api_metricas():
-    """API: Retorna métricas globais em JSON."""
-    
+    """API: Retorna métricas globais em JSON (Restrito para Admin)."""
+    if 'perfil' not in session or session['perfil'] != 'admin':
+        return jsonify({'erro': 'Acesso negado. Requer perfil administrativo.'}), 403
+        
     try:
         metricas = metricas_globais()
         return jsonify(metricas)
-    
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
@@ -61,7 +139,6 @@ def api_metricas():
 @app.route('/api/categorias')
 def api_categorias():
     """API: Análise por categoria de veículo."""
-    
     try:
         conn = conectar()
         cursor = conn.cursor()
@@ -108,7 +185,6 @@ def api_categorias():
 @app.route('/api/periodos')
 def api_periodos():
     """API: Análise por período (mês)."""
-    
     try:
         conn = conectar()
         cursor = conn.cursor()
@@ -140,9 +216,7 @@ def api_periodos():
                 'co2_g': round(periodo[4] or 0, 2)
             })
 
-        # Inverter para mostrar do mais antigo para o mais recente
         resultado.reverse()
-        
         return jsonify(resultado)
     
     except Exception as e:
@@ -152,7 +226,6 @@ def api_periodos():
 @app.route('/api/ranking')
 def api_ranking():
     """API: Ranking de veículos por impacto."""
-    
     try:
         ranking = ranking_usuarios_verdes()
         
@@ -176,7 +249,6 @@ def api_ranking():
 @app.route('/api/veiculos')
 def api_veiculos():
     """API: Dados detalhados de veículos."""
-    
     try:
         conn = conectar()
         cursor = conn.cursor()
@@ -225,59 +297,39 @@ def api_veiculos():
 
 
 # =========================================================
-# ROTAS DE PÁGINAS
+# ROTAS DE RENDERIZAÇÃO DE PÁGINAS (ADMINISTRATIVAS)
 # =========================================================
 
 @app.route('/categorias')
 def categorias_page():
-    """Página de análise por categoria."""
+    if 'perfil' not in session or session['perfil'] != 'admin':
+        return redirect(url_for('login_page'))
     return render_template('categorias.html')
 
 
 @app.route('/periodos')
 def periodos_page():
-    """Página de análise temporal."""
+    if 'perfil' not in session or session['perfil'] != 'admin':
+        return redirect(url_for('login_page'))
     return render_template('periodos.html')
 
 
 @app.route('/ranking')
 def ranking_page():
-    """Página de ranking de veículos."""
+    if 'perfil' not in session:
+        return redirect(url_for('login_page'))
     return render_template('ranking.html')
 
 
 @app.route('/veiculos')
 def veiculos_page():
-    """Página de lista detalhada de veículos."""
+    if 'perfil' not in session or session['perfil'] != 'admin':
+        return redirect(url_for('login_page'))
     return render_template('veiculos.html')
 
 
 # =========================================================
-# ERROR HANDLERS
-# =========================================================
-
-@app.errorhandler(404)
-def not_found(error):
-    """Página de erro 404."""
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def server_error(error):
-    """Página de erro 500."""
-    return render_template('500.html'), 500
-
-
-# =========================================================
-# HEALTH CHECK
-# =========================================================
-
-@app.route('/health')
-def health():
-    """Verificar saúde da aplicação."""
-    return jsonify({'status': 'ok'})
-# =========================================================
-# ROTAS DA FEATURE CLIENTE
+# ROTAS DA FEATURE CLIENTE (DADOS ESPECÍFICOS)
 # =========================================================
 
 @app.route('/api/modelos', methods=['GET'])
@@ -288,6 +340,7 @@ def api_listar_modelos():
         return jsonify(lista_modelos)
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
+
 
 @app.route('/api/cliente/cadastro', methods=['POST'])
 def api_cadastrar_veiculo():
@@ -304,8 +357,13 @@ def api_cadastrar_veiculo():
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
 
+
 @app.route('/api/cliente/<placa>', methods=['GET'])
 def api_dados_cliente(placa):
+    # Proteção de barreira: Clientes só podem consultar os dados da própria placa logada
+    if 'perfil' in session and session['perfil'] == 'cliente' and session['placa_cliente'] != placa.upper():
+        return jsonify({'erro': 'Acesso não autorizado aos dados de outra placa.'}), 403
+
     try:
         placa = placa.strip().upper()
         painel = obter_painel_impacto(placa)
@@ -323,7 +381,7 @@ def api_dados_cliente(placa):
             JOIN passagens p ON i.placa = p.placa AND i.data_hora = p.data_hora
             WHERE i.placa = ? ORDER BY i.data_hora DESC
         """, (placa,))
-        historico = [{'data_hora': p[0], 'local': 'Shopping Center', 'co2_evitado': p[2], 'tempo_poupado': p[3], 'capcoins': p[4]} for p in cursor.fetchall()]
+        historico = [{'data_hora': p[0], 'local': p[1], 'co2_evitado': p[2], 'tempo_poupado': p[3], 'capcoins': p[4]} for p in cursor.fetchall()]
 
         # Evolução Mensal
         cursor.execute("""
@@ -337,13 +395,15 @@ def api_dados_cliente(placa):
         return jsonify({'perfil': painel, 'historico': historico, 'evolucao': evolucao})
     except Exception as e:
         return jsonify({'erro': str(e)}), 500
+
+
 @app.route('/api/cliente/usar_taggy', methods=['POST'])
 def api_usar_taggy():
     """Simula o uso da Taggy em tempo real, gerando impacto e pontos."""
     try:
         dados = request.get_json()
         placa = dados.get('placa', '').strip().upper()
-        local = dados.get('local', 'Shopping Tacaruna') # Local simulado
+        local = dados.get('local', 'Shopping Tacaruna')
 
         if not placa:
             return jsonify({'erro': 'Placa é obrigatória.'}), 400
@@ -363,7 +423,7 @@ def api_usar_taggy():
 
         if not veiculo:
             fechar_conexao(conn)
-            return jsonify({'erro': 'Veículo não encontrado.'}), 404
+            return jsonify({'erro': 'Veículo não cadastrado no sistema.'}), 404
 
         consumo_litro_hora, fator_co2 = veiculo
 
@@ -402,9 +462,28 @@ def api_usar_taggy():
         return jsonify({'erro': str(e)}), 500
 
 
+# =========================================================
+# CONTROLADORES DE ERRO ESTILIZADOS
+# =========================================================
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def server_error(error):
+    return render_template('500.html'), 500
+
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok'})
+
+
 if __name__ == '__main__':
     print("\n" + "="*60)
-    print("🌱 ECOMETRIC - DASHBOARD")
+    print("🌱 ECOMETRIC - DASHBOARD PROFISSIONAL")
     print("="*60)
     print("\n🚀 Iniciando aplicação...")
     print("📡 Acesse em: http://localhost:5000")

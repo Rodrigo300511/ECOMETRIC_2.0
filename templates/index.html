@@ -22,6 +22,15 @@
                 <li><a href="/periodos" class="nav-link">Períodos</a></li>
                 <li><a href="/ranking" class="nav-link">Ranking</a></li>
                 <li><a href="/veiculos" class="nav-link">Veículos</a></li>
+                
+                <!-- Botão condicional: Só renderiza se for Admin -->
+                {% if session.get('perfil') == 'admin' %}
+                <li>
+                    <a href="/logout" class="nav-link" style="color: #dc2626; font-weight: bold; margin-left: 15px; padding: 6px 12px; border: 1px solid #fca5a5; border-radius: 6px; background-color: #fef2f2; text-decoration: none;">
+                        Sair 🚪
+                    </a>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </nav>
@@ -148,12 +157,12 @@
 
                 <div id="dashboard-individual-cliente" style="display: none;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: white; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
-    <h2 style="font-size: 24px; margin: 0;">Painel do Condutor: <span id="txt-placa-perfil" style="color: #2ecc71;">-</span></h2>
-    
-    <button onclick="simularUsoTaggy(this)" style="padding: 12px 20px; background-color: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;">
-        🏷️ Usar Taggy Agora
-    </button>
-</div>
+                        <h2 style="font-size: 24px; margin: 0;">Painel do Condutor: <span id="txt-placa-perfil" style="color: #2ecc71;">-</span></h2>
+                        
+                        <button onclick="simularUsoTaggy(this)" style="padding: 12px 20px; background-color: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s;">
+                            🏷️ Usar Taggy Agora
+                        </button>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px;">
                         <div class="stat-box" style="margin: 0;">

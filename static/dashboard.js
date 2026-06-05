@@ -1,15 +1,20 @@
 /* ====================================================
-   ECOMETRIC DASHBOARD - SCRIPTS PRINCIPAIS
+   ECOMETRIC DASHBOARD - SCRIPTS PRINCIPAIS PROTEGIDOS
    ==================================================== */
 
 let charts = {};
 
+// Função global de proteção para ofuscar os caracteres centrais da placa
+function mascararPlaca(placa) {
+    if (!placa || placa.length < 4) return placa;
+    return placa.substring(0, 2) + '***' + placa.substring(placa.length - 2);
+}
+
 // ====================================================
 // INICIALIZAÇÃO
 // ====================================================
-
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🌱 Inicializando Dashboard Ecometric...');
+    console.log('🌱 Inicializando Dashboard Ecometric Protegido...');
     
     await carregarMetricas();
     await carregarGraficos();
@@ -20,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ====================================================
 // CARREGAR MÉTRICAS PRINCIPAIS
 // ====================================================
-
 async function carregarMetricas() {
     try {
         const response = await axios.get('/api/metricas');
@@ -66,7 +70,6 @@ async function carregarMetricas() {
 // ====================================================
 // ANIMAR BARRAS DE PROGRESSO
 // ====================================================
-
 function animarBarra(elementId, maxWidth) {
     const element = document.getElementById(elementId);
     let currentWidth = 0;
@@ -85,18 +88,11 @@ function animarBarra(elementId, maxWidth) {
 // ====================================================
 // CARREGAR GRÁFICOS
 // ====================================================
-
 async function carregarGraficos() {
     try {
-        // Gráfico de timeline
         await criarGraficoTimeline();
-        
-        // Gráfico de categorias
         await criarGraficoCategoria();
-        
-        // Gráfico de ranking
-        await criarGraficoRanking();
-        
+        await criarGraficoRanking(); // Este agora irá ocultar as placas das barras
     } catch (error) {
         console.error('❌ Erro ao carregar gráficos:', error);
         mostrarErro('Erro ao criar gráficos');
@@ -106,13 +102,11 @@ async function carregarGraficos() {
 // ====================================================
 // GRÁFICO: TIMELINE (CO₂ ao longo do tempo)
 // ====================================================
-
 async function criarGraficoTimeline() {
     try {
         const response = await axios.get('/api/periodos');
         const dados = response.data;
 
-        // Preparar dados para o gráfico
         const labels = dados.map(d => d.mes);
         const co2Data = dados.map(d => d.co2_g);
         const combustivelData = dados.map(d => d.combustivel_ml);
@@ -156,19 +150,12 @@ async function criarGraficoTimeline() {
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
+                interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: {
                         display: true,
                         position: 'top',
-                        labels: {
-                            font: { size: 12, weight: 600 },
-                            padding: 20,
-                            usePointStyle: true
-                        }
+                        labels: { font: { size: 12, weight: 600 }, padding: 20, usePointStyle: true }
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -182,34 +169,19 @@ async function criarGraficoTimeline() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'CO₂ (gramas)'
-                        },
-                        grid: {
-                            color: 'rgba(16, 185, 129, 0.05)'
-                        }
+                        title: { display: true, text: 'CO₂ (gramas)' },
+                        grid: { color: 'rgba(16, 185, 129, 0.05)' }
                     },
                     y1: {
                         type: 'linear',
                         position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Combustível (ml)'
-                        },
-                        grid: {
-                            drawOnChartArea: false
-                        }
+                        title: { display: true, text: 'Combustível (ml)' },
+                        grid: { drawOnChartArea: false }
                     },
-                    x: {
-                        grid: {
-                            color: 'rgba(16, 185, 129, 0.05)'
-                        }
-                    }
+                    x: { grid: { color: 'rgba(16, 185, 129, 0.05)' } }
                 }
             }
         });
-
     } catch (error) {
         console.error('❌ Erro ao criar gráfico de timeline:', error);
     }
@@ -218,7 +190,6 @@ async function criarGraficoTimeline() {
 // ====================================================
 // GRÁFICO: CATEGORIAS (Pizza/Doughnut)
 // ====================================================
-
 async function criarGraficoCategoria() {
     try {
         const response = await axios.get('/api/categorias');
@@ -228,15 +199,7 @@ async function criarGraficoCategoria() {
         const co2Data = dados.map(d => d.co2_g);
 
         const ctx = document.getElementById('categoryChart').getContext('2d');
-        
-        const cores = [
-            '#10b981',  // Verde
-            '#047857',  // Verde escuro
-            '#6d28d9',  // Roxo
-            '#f97316',  // Laranja
-            '#0ea5e9',  // Azul
-            '#ec4899'   // Rosa
-        ];
+        const cores = ['#10b981', '#047857', '#6d28d9', '#f97316', '#0ea5e9', '#ec4899'];
 
         charts.category = new Chart(ctx, {
             type: 'doughnut',
@@ -257,11 +220,7 @@ async function criarGraficoCategoria() {
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: {
-                            font: { size: 12, weight: 600 },
-                            padding: 20,
-                            usePointStyle: true
-                        }
+                        labels: { font: { size: 12, weight: 600 }, padding: 20, usePointStyle: true }
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -280,22 +239,21 @@ async function criarGraficoCategoria() {
                 }
             }
         });
-
     } catch (error) {
         console.error('❌ Erro ao criar gráfico de categorias:', error);
     }
 }
 
 // ====================================================
-// GRÁFICO: RANKING (Barra horizontal)
+// GRÁFICO: RANKING GLOBAL (Barra horizontal protegida)
 // ====================================================
-
 async function criarGraficoRanking() {
     try {
         const response = await axios.get('/api/ranking');
-        const dados = response.data.slice(0, 10); // Top 10
+        const dados = response.data.slice(0, 10);
 
-        const labels = dados.map(d => d.placa);
+        // PROTEÇÃO: Mascarar rótulos das placas no gráfico geral
+        const labels = dados.map(d => mascararPlaca(d.placa));
         const co2Data = dados.map(d => d.co2_g);
 
         const ctx = document.getElementById('rankingChart').getContext('2d');
@@ -322,9 +280,7 @@ async function criarGraficoRanking() {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         titleFont: { size: 13, weight: 700 },
@@ -341,67 +297,39 @@ async function criarGraficoRanking() {
                 scales: {
                     x: {
                         beginAtZero: true,
-                        grid: {
-                            color: 'rgba(16, 185, 129, 0.05)'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Gramas de CO₂'
-                        }
+                        grid: { color: 'rgba(16, 185, 129, 0.05)' },
+                        title: { display: true, text: 'Gramas de CO₂' }
                     },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
+                    y: { grid: { display: false } }
                 }
             }
         });
-
     } catch (error) {
         console.error('❌ Erro ao criar gráfico de ranking:', error);
     }
 }
 
 // ====================================================
-// UTILIDADES
+// UTILIDADES / NAVEGAÇÃO
 // ====================================================
-
-function mostrarErro(mensagem) {
-    console.error(mensagem);
-    // Aqui você pode adicionar um toast notification
-}
-
-// ====================================================
-// NAVEGAÇÃO ATIVA
-// ====================================================
+function mostrarErro(mensagem) { console.error(mensagem); }
 
 function atualizarNavegacao() {
     const path = window.location.pathname;
     const links = document.querySelectorAll('.nav-link');
-    
     links.forEach(link => {
-        if (link.getAttribute('href') === path) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
+        if (link.getAttribute('href') === path) { link.classList.add('active'); } 
+        else { link.classList.remove('active'); }
     });
 }
-
-// Chamar ao carregar
 atualizarNavegacao();
-
-// Atualizar ao mudar de página
 window.addEventListener('popstate', atualizarNavegacao);
 
-
 // =========================================================
-// PASSO 3: LÓGICA DA ÁREA DO CLIENTE (NOVA FEATURE)
+// AREA DO CLIENTE
 // =========================================================
 let chartClienteInstance = null;
 
-// Alternar entre as abas Visão Geral e Área do Cliente
 function alternarAba(abaNome) {
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -417,12 +345,10 @@ function alternarAba(abaNome) {
         document.getElementById('tab-area-cliente').style.display = 'block';
         event.target.style.backgroundColor = '#2ecc71';
         event.target.style.color = 'white';
-        // Carrega os modelos de carros assim que a aba é aberta
         carregarModelosDropdown(); 
     }
 }
 
-// Buscar modelos na API para preencher o formulário de registo
 function carregarModelosDropdown() {
     axios.get('/api/modelos').then(response => {
         const select = document.getElementById('cad-modelo');
@@ -433,8 +359,7 @@ function carregarModelosDropdown() {
     }).catch(err => console.error('Erro ao carregar modelos:', err));
 }
 
-// Enviar dados para registar um novo veículo
-function executarCadastroVeiculo() {
+function ejecutarCadastroVeiculo() {
     const placa = document.getElementById('cad-placa').value;
     const modeloId = document.getElementById('cad-modelo').value;
     const msg = document.getElementById('msg-cadastro');
@@ -442,29 +367,31 @@ function executarCadastroVeiculo() {
     axios.post('/api/cliente/cadastro', { placa, modelo_id: modeloId })
         .then(res => {
             msg.innerHTML = `<span style="color: green;">${res.data.mensagem}</span>`;
-            document.getElementById('cad-placa').value = ''; // Limpa o campo
+            document.getElementById('cad-placa').value = '';
         })
         .catch(err => msg.innerHTML = `<span style="color: red;">${err.response.data.erro}</span>`);
 }
 
-// Buscar e exibir os dados de impacto do cliente
+// Buscar e exibir os dados de impacto do cliente (Com Proteção Visual)
 function carregarDadosCliente() {
-    const placa = document.getElementById('input-placa-login').value;
-    if (!placa) return alert('Por favor, introduza uma placa!');
+    const placaInput = document.getElementById('input-placa-login').value;
+    if (!placaInput) return alert('Por favor, informe uma placa!');
 
-    axios.get(`/api/cliente/${placa}`).then(response => {
+    axios.get(`/api/cliente/${placaInput}`).then(response => {
         const data = response.data;
+        const placaOriginal = data.perfil.placa || placaInput;
         
-        // Mostra o dashboard individual
         document.getElementById('dashboard-individual-cliente').style.display = 'block';
-        document.getElementById('txt-placa-perfil').innerText = placa.toUpperCase();
         
-        // Atualiza os cartões de métricas (Trata casos de veículos novos sem dados)
+        // PROTEÇÃO VISUAL AQUI:
+        const txtPerfil = document.getElementById('txt-placa-perfil');
+        txtPerfil.innerText = mascararPlaca(placaOriginal).toUpperCase(); // Exibe mascarado na tela
+        txtPerfil.setAttribute('data-placa-real', placaOriginal);          // Guarda a real nos bastidores
+        
         document.getElementById('cli-co2').innerText = `${data.perfil.co2_total_g ? data.perfil.co2_total_g.toFixed(1) : 0}g`;
         document.getElementById('cli-arvores').innerText = data.perfil.equivalente_arvores ? data.perfil.equivalente_arvores.toFixed(2) : 0;
         document.getElementById('cli-capcoins').innerText = data.perfil.saldo_capcoins || 0;
 
-        // Atualiza a tabela de histórico
         const tbody = document.getElementById('tbody-historico-cliente');
         tbody.innerHTML = '';
         if (data.historico.length === 0) {
@@ -481,9 +408,8 @@ function carregarDadosCliente() {
             });
         }
 
-        // Renderiza o gráfico de evolução
         const ctx = document.getElementById('chartEvolucaoCliente').getContext('2d');
-        if (chartClienteInstance) chartClienteInstance.destroy(); // Limpa o gráfico anterior
+        if (chartClienteInstance) chartClienteInstance.destroy();
         chartClienteInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -498,38 +424,38 @@ function carregarDadosCliente() {
                 }]
             }
         });
-    }).catch(() => alert('Erro ao procurar dados. Tem a certeza que a placa está correta?'));
+    }).catch((err) => {
+        console.error(err);
+        alert('Erro ao procurar dados. Tem a certeza que a placa está correta?');
+    });
 }
+
 // ==========================================
-// SIMULAR USO DA TAGGY EM TEMPO REAL
+// SIMULAR USO DA TAGGY EM TEMPO REAL CORRIGIDO
 // ==========================================
 function simularUsoTaggy(botao) {
-    const placa = document.getElementById('txt-placa-perfil').innerText;
-    if (!placa || placa === '-') return alert('Aceda ao seu painel primeiro.');
+    // CORREÇÃO: Lê o atributo invisível de dados que criamos acima para não ler os asteriscos '***'
+    const placaReal = document.getElementById('txt-placa-perfil').getAttribute('data-placa-real');
+    if (!placaReal || placaReal === '-') return alert('Aceda ao seu painel primeiro.');
 
-    // Efeito visual de carregamento no botão
     const textoOriginal = botao.innerHTML;
     botao.innerHTML = 'A abrir catraca... ⏳';
     botao.disabled = true;
     botao.style.backgroundColor = '#e67e22';
 
-    // Faz o pedido à nova rota da API
-    axios.post('/api/cliente/usar_taggy', { placa: placa, local: 'Shopping Tacaruna (Demonstração)' })
+    // Faz a requisição usando a placa limpa e verdadeira obtida dos bastidores
+    axios.post('/api/cliente/usar_taggy', { placa: placaReal, local: 'Shopping Tacaruna (Demonstração)' })
         .then(response => {
-            // Garante que a placa está no input de busca para podermos recarregar
-            document.getElementById('input-placa-login').value = placa;
+            // Atualiza o input de login com a placa real antes de recarregar a tela
+            document.getElementById('input-placa-login').value = placaReal;
             
-            // Recarrega os dados da tela imediatamente!
             carregarDadosCliente();
-            
-            // Avisa o utilizador da gamificação
             alert('✅ Catraca aberta sem filas!\n\nVocê poupou combustível, ajudou o ambiente e ganhou +3 CapCoins!');
         })
         .catch(error => {
             alert('Erro ao registar a passagem: ' + (error.response?.data?.erro || 'Erro desconhecido.'));
         })
         .finally(() => {
-            // Restaura o botão
             botao.innerHTML = textoOriginal;
             botao.disabled = false;
             botao.style.backgroundColor = '#f39c12';

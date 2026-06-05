@@ -8,11 +8,12 @@
     <title>ECOMETRIC - Ranking Verde</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-container">
 
@@ -32,7 +33,6 @@
         </div>
     </nav>
 
-    <!-- HERO -->
     <section class="hero">
         <div class="hero-gradient"></div>
 
@@ -47,8 +47,11 @@
         </div>
     </section>
 
-    <!-- CONTEÚDO -->
     <main class="container">
+
+        <div class="ranking-card" style="margin-bottom: 2rem; height: 350px;">
+            <canvas id="rankingChart"></canvas>
+        </div>
 
         <div class="ranking-card">
 
@@ -65,7 +68,7 @@
                 <tbody id="tbody">
 
                     <tr>
-                        <td colspan="3">
+                        <td colspan="3" style="text-align:center; padding:2rem;">
                             Carregando ranking...
                         </td>
                     </tr>
@@ -78,85 +81,12 @@
 
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer">
         <p>🌱 ECOMETRIC - Dashboard de Impacto Ambiental</p>
         <p>Desenvolvido para monitoramento sustentável</p>
     </footer>
 
-    <script>
-
-        fetch('/api/ranking')
-            .then(response => response.json())
-            .then(data => {
-
-                const tbody = document.getElementById('tbody');
-
-                if (!data || data.length === 0) {
-
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="3">
-                                Nenhum dado encontrado
-                            </td>
-                        </tr>
-                    `;
-
-                    return;
-                }
-
-                tbody.innerHTML = '';
-
-                data.forEach(item => {
-
-                    let medalha = '';
-                    let classe = '';
-
-                    if (item.posicao === 1) {
-                        medalha = '🥇';
-                        classe = 'gold';
-                    }
-                    else if (item.posicao === 2) {
-                        medalha = '🥈';
-                        classe = 'silver';
-                    }
-                    else if (item.posicao === 3) {
-                        medalha = '🥉';
-                        classe = 'bronze';
-                    }
-
-                    tbody.innerHTML += `
-                        <tr class="${classe}">
-                            <td class="position">
-                                ${medalha} ${item.posicao}
-                            </td>
-
-                            <td>
-                                <strong>${item.placa}</strong>
-                            </td>
-
-                            <td class="co2-value">
-                                ${Number(item.co2_g).toFixed(2)} g
-                            </td>
-                        </tr>
-                    `;
-                });
-
-            })
-            .catch(error => {
-
-                console.error(error);
-
-                document.getElementById('tbody').innerHTML = `
-                    <tr>
-                        <td colspan="3">
-                            Erro ao carregar ranking
-                        </td>
-                    </tr>
-                `;
-            });
-
-    </script>
+    <script src="{{ url_for('static', filename='ranking.js') }}"></script>
 
 </body>
 
