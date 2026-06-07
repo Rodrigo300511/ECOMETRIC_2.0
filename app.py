@@ -7,6 +7,7 @@ Aplicação web responsável por:
 - Gerar gráficos interativos
 - Apresentar rankings de veículos
 - Gerenciar sessões e fluxos de Visão Geral vs Área do Cliente
+- [NOVO] Disponibilizar catálogo de recompensas e resgate exclusivo para clientes
 """
 
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
@@ -105,7 +106,7 @@ def api_login():
 @app.route('/')
 def index():
     """Página de entrada com bifurcação condicional baseada na Sessão."""
-    # Se não houver uma sessão ativa, força o login
+    # Se não houver uma sessão activa, força o login
     if 'perfil' not in session:
         return redirect(url_for('login_page'))
     
@@ -297,7 +298,7 @@ def api_veiculos():
 
 
 # =========================================================
-# ROTAS DE RENDERIZAÇÃO DE PÁGINAS (ADMINISTRATIVAS)
+# ROTAS DE RENDERIZAÇÃO DE PÁGINAS (ADMINISTRATIVAS / GERAIS)
 # =========================================================
 
 @app.route('/categorias')
@@ -326,6 +327,75 @@ def veiculos_page():
     if 'perfil' not in session or session['perfil'] != 'admin':
         return redirect(url_for('login_page'))
     return render_template('veiculos.html')
+
+
+# =========================================================
+# FEATURE: LOJA DE RECOMPENSAS (RESTRITO AO PERFIL CLIENTE)
+# =========================================================
+
+@app.route('/loja')
+def loja_page():
+    """Renderiza a página da Loja Sustentável de Recompensas.
+    BARREIRA: Apenas o cliente logado pode acessar. Admin é redirecionado para home.
+    """
+    if 'perfil' not in session:
+        return redirect(url_for('login_page'))
+        
+    if session['perfil'] == 'admin':
+        return redirect(url_for('index'))
+        
+    placa = session.get('placa_cliente')
+    return render_template('loja.html', placa=placa, perfil='cliente')
+
+
+@app.route('/api/recompensas', methods=['GET'])
+def api_listar_recompensas():
+    """API: Retorna o catálogo de prêmios cadastrados para montagem da loja."""
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, nome, custo, descricao, categoria FROM recompensas ORDER BY custo ASC")
+        linhas = cursor.fetchall()
+        fechar_conexao(conn)
+        
+        recompensas = [{
+            'id': r[0], 'nome': r[1], 'custo': r[2], 'descricao': r[3], 'categoria': r[4]
+        } for r in linhas]
+        
+        return jsonify(recompensas)
+    except Exception as e:
+        return jsonify({'erro': str(e)}), 500
+
+
+@app.route('/api/loja/resgatar', methods=['POST'])
+def api_resgatar_recompensa():
+    """API: Processa a dedução dos CapCoins ao trocar por uma recompensa.
+    BARREIRA RIGIDA: Apenas para clientes reais. Bloqueia manipulações ou acessos de Admin.
+    """
+    if 'perfil' not in session or session['perfil'] != 'cliente':
+        return jsonify({'erro': 'Acesso negado. Apenas clientes podem efetuar resgates.'}), 403
+        
+    try:
+        dados = request.get_json() or {}
+        placa = dados.get('placa', '').strip().upper()
+        recompensa_id = dados.get('recompensa_id')
+        
+        # Garante integridade: placa enviada no corpo deve bater com a placa logada
+        if placa != session.get('placa_cliente'):
+            return jsonify({'erro': 'Ação inválida. Identificação do veículo inconsistente.'}), 403
+            
+        if not recompensa_id:
+            return jsonify({'erro': 'ID da recompensa é obrigatório.'}), 400
+
+        from src.services import resgatar_recompensa
+        # Aciona o seu serviço central do backend (services.py) que fará a validação de saldo
+        resgatar_recompensa(placa, int(recompensa_id))
+        
+        return jsonify({'status': 'sucesso', 'mensagem': 'Resgate processado com sucesso!'})
+    except ValueError as ve:
+        return jsonify({'erro': str(ve)}), 400
+    except Exception as e:
+        return jsonify({'erro': f'Erro no processamento do resgate: {str(e)}'}), 500
 
 
 # =========================================================
