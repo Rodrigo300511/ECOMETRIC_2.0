@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Atualiza a interface com a placa conectada (com segurança visual se preferir)
+    // Atualiza a interface com a placa conectada
     document.getElementById('lbl-placa-usuario').textContent = placa.toUpperCase();
 
     // Inicializa a carga dos dados da loja
@@ -19,21 +19,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Busca simultaneamente o saldo do usuário e o catálogo de prêmios do Banco
+ * Busca o saldo de CapCoins do cliente e a lista de prêmios cadastrados no Banco
  */
 async function carregarDadosLoja(placa) {
     try {
-        // 1. Busca os dados de perfil/saldo usando a rota que você já tem no app.py
+        // 1. Busca os dados de perfil/saldo usando a rota do cliente mapeada no app.py
         const responseCliente = await axios.get(`/api/cliente/${placa}`);
         const dadosCliente = responseCliente.data;
         
-        if (dadosCliente && dadosCliente.perfil) {
-            const saldoAtual = dadosCliente.perfil.capcoins || 0;
-            document.getElementById('saldo-capcoins-loja').textContent = `🪙 ${saldoAtual}`;
+        let saldoAtual = 0;
+        
+        // MAPEAMENTO CORRIGIDO COM O SEU BACKEND:
+        // O app.py retorna a chave exata 'saldo_capcoins' dentro do objeto 'perfil'
+        if (dadosCliente && dadosCliente.perfil && dadosCliente.perfil.saldo_capcoins !== undefined) {
+            saldoAtual = dadosCliente.perfil.saldo_capcoins;
         }
 
-        // 2. Busca a lista completa de recompensas cadastradas no sistema
-        // Nota: Vamos assumir que criaremos a rota '/api/recompensas' no backend a seguir.
+        // Atualiza o elemento visual na tela da loja com o saldo real do carro
+        document.getElementById('saldo-capcoins-loja').textContent = `🪙 ${saldoAtual}`;
+
+        // 2. Busca o catálogo da API do app.py (/api/recompensas)
         const responseLoja = await axios.get('/api/recompensas');
         const listaRecompensas = responseLoja.data;
 
@@ -42,8 +47,8 @@ async function carregarDadosLoja(placa) {
     } catch (error) {
         console.error('❌ Erro ao carregar dados da loja:', error);
         document.getElementById('grid-recompensas').innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; color: #dc2626; padding: 20px;">
-                ⚠️ Erro ao carregar a loja. Verifique se o servidor está ativo.
+            <div style="grid-column: 1/-1; text-align: center; color: #dc2626; padding: 20px; font-weight: 500;">
+                ⚠️ Falha ao carregar o catálogo ou o saldo. Verifique a conexão com o servidor.
             </div>
         `;
     }
@@ -69,14 +74,14 @@ function renderizarCatalogo(recompensas, placa) {
     };
 
     grid.innerHTML = recompensas.map(item => {
-        const emoji = emojisCategoria[item.categoria] || '✨';
+        const emoji = emojisCategoria[item.categoria?.toLowerCase()] || '✨';
         
         return `
             <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; transition: transform 0.2s; box-shadow: var(--shadow-sm);">
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <span style="font-size: 2rem; margin-bottom: 10px;">${emoji}</span>
-                        <span class="badge-categoria" style="text-transform: capitalize;">${item.categoria}</span>
+                        <span class="badge-categoria" style="text-transform: capitalize;">${item.categoria || 'Geral'}</span>
                     </div>
                     <h3 style="margin: 10px 0 5px 0; font-size: 1.15rem; color: var(--text-dark);">${item.nome}</h3>
                     <p style="margin: 0 0 15px 0; color: var(--text-light); font-size: 0.88rem; line-height: 1.4;">
@@ -110,8 +115,6 @@ async function resgatarPremio(placa, idRecompensa, nomeRecompensa) {
     if (!confirm(`Confirmar o resgate de: "${nomeRecompensa}"?`)) return;
 
     try {
-        // Envia a requisição usando o endpoint correto de desconto que você construiu no services.py
-        // Ajustamos para apontar para a nossa API do Flask
         const response = await axios.post('/api/loja/resgatar', {
             placa: placa,
             recompensa_id: idRecompensa
@@ -119,7 +122,7 @@ async function resgatarPremio(placa, idRecompensa, nomeRecompensa) {
 
         if (response.data && response.data.status === 'sucesso') {
             exibirMensagem(`🎉 Sucesso! Você resgatou: ${nomeRecompensa}. Verifique seu e-mail cadastrado!`, '#166534', '#d1fae5');
-            // Recarrega os saldos e botões instantaneamente
+            // Recarrega o saldo atualizado e a lista instantaneamente
             carregarDadosLoja(placa);
         }
     } catch (error) {
@@ -140,6 +143,5 @@ function exibirMensagem(texto, corTexto, corFundo) {
     box.style.border = `1px solid ${corTexto}44`;
     box.textContent = texto;
 
-    // Rola a página suavemente para cima para o usuário ler o alerta
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
