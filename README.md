@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🌱 Ecometric — Dashboard de Impacto Ambiental
 
 > **Inteligência Ambiental para Mobilidade Urbana**
