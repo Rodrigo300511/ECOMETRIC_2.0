@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Temporal - Ecometric</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+    {% include 'common/header.html' %}
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">📅 Análise Temporal</h1>
+            <p class="hero-subtitle">Evolução do impacto ambiental ao longo dos meses</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <section class="chart-container full-width">
+            <h2>📈 Evolução Mensal</h2>
+            <canvas id="evolutionChart" style="min-height: 300px;"></canvas>
+        </section>
+
+        <section class="chart-row" style="margin-top: var(--spacing-xl);">
+            <div class="chart-container">
+                <h2>💨 CO₂ por Mês</h2>
+                <canvas id="co2TimeChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>🚘 Passagens por Mês</h2>
+                <canvas id="passagesChart"></canvas>
+            </div>
+        </section>
+
+        {% include 'common/footer.html' %}
+    </main>
+
+    <script src="{{ url_for('static', filename='periodos.js') }}"></script>
+</body>
+</html>

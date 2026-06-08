@@ -1,0 +1,27 @@
+{% set perfil = session.get('perfil') %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-logo">
+            <span class="logo-icon">🌱</span>
+            <span class="logo-text">Ecometric</span>
+        </div>
+
+        <ul class="nav-menu">
+            {% if perfil == 'admin' %}
+                <li><a href="/" class="nav-link {{ 'active' if request.path == '/' }}">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link {{ 'active' if request.path == '/categorias' }}">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link {{ 'active' if request.path == '/periodos' }}">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link {{ 'active' if request.path == '/ranking' }}">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link {{ 'active' if request.path == '/veiculos' }}">Veículos</a></li>
+            {% elif perfil == 'cliente' %}
+                <li><a href="/" class="nav-link {{ 'active' if request.path == '/' }}">Meu Painel</a></li>
+                <li><a href="/loja" class="nav-link {{ 'active' if request.path == '/loja' }}">Loja Sustentável 🪙</a></li>
+                <li><a href="/ranking" class="nav-link {{ 'active' if request.path == '/ranking' }}">Ranking</a></li>
+            {% endif %}
+
+            {% if perfil %}
+                <li><a href="/logout" class="nav-link nav-logout">Sair 🚪</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>

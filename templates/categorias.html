@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecometric - Análise por Categorias</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.4/build/index.umd.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+
+    <style>
+        /* Ajuste fino para garantir que o Chart.js encontre uma altura válida para renderizar */
+        .canvas-wrapper {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    {% include 'common/header.html' %}
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🌱 Inteligência por Categorias</h1>
+            <p class="hero-subtitle">Visão comparativa e detalhada sobre a eficiência de sustentabilidade por tipo de frota</p>
+        </div>
+    </section>
+
+    <main class="container">
+        
+        <section class="chart-container full-width">
+            <h2>📊 Distribuição Estatística de CO₂ por Viagem</h2>
+            <div class="canvas-wrapper" style="height: 360px;">
+                <canvas id="meuGraficoBoxPlot"></canvas>
+            </div>
+        </section>
+
+        <div class="chart-row" style="margin-top: var(--spacing-xl);">
+            <section class="chart-container">
+                <h2>💨 Total de CO₂ Evitado</h2>
+                <div class="canvas-wrapper">
+                    <canvas id="co2Chart"></canvas>
+                </div>
+            </section>
+            
+            <section class="chart-container">
+                <h2>⛽ Combustível Poupado</h2>
+                <div class="canvas-wrapper">
+                    <canvas id="fuelChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <div class="chart-row" style="margin-top: var(--spacing-xl);">
+            <section class="chart-container full-width">
+                <h2>🌳 Índice de Reflorestamento Equivalente</h2>
+                <div class="canvas-wrapper">
+                    <canvas id="treeChart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        {% include 'common/footer.html' %}
+    </main>
+
+    <script src="{{ url_for('static', filename='categorias.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veículos - Ecometric</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    {% include 'common/header.html' %}
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">🚗 Veículos Cadastrados</h1>
+            <p class="hero-subtitle">Gestão e monitorização do impacto ambiental por veículo ativo</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <section class="table-container">
+            <table class="veiculos-table">
+                <thead>
+                    <tr>
+                        <th>Placa</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Categoria</th>
+                        <th>Passagens</th>
+                        <th>CO₂ Evitado (g)</th>
+                        <th>CapCoins</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <tr>
+                        <td colspan="7" style="padding:20px;text-align:center;">
+                            ⏳ A carregar veículos protegidos...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        {% include 'common/footer.html' %}
+    </main>
+
+    <script src="{{ url_for('static', filename='veiculos.js') }}"></script>
+</body>
+</html>

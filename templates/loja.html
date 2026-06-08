@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja de Recompensas - Ecometric</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+
+    {% include 'common/header.html' %}
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Loja de Recompensas Sustentáveis</h1>
+            <p class="hero-subtitle">Troque suas CapCoins acumuladas por benefícios reais e produtos ecológicos.</p>
+        </div>
+    </section>
+
+    <main class="container">
+        
+        <div class="card" style="margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid #10b981; background: #fafafa;">
+            <div>
+                <h2 style="margin: 0; font-size: 1.3rem; color: #1e293b;">Seu Saldo Atual</h2>
+                <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">Placa conectada: <strong id="lbl-placa-usuario" style="font-family: monospace;">...</strong></p>
+            </div>
+            <div class="metric-value" id="saldo-capcoins-loja" style="font-size: 2.2rem; font-weight: 800; margin: 0; color: #eab308;">
+                🪙 0
+            </div>
+        </div>
+
+        <div id="mensagem-loja" style="display: none; padding: 15px; border-radius: 8px; margin-bottom: 25px; font-weight: 500; text-align: center;"></div>
+
+        <section>
+            <h2 class="card-title" style="margin-bottom: 20px;">🎒 Catálogo Disponível</h2>
+            
+            <div id="grid-recompensas" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px;">
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b;">
+                    ⏳ Carregando catálogo de prêmios do ecossistema...
+                </div>
+            </div>
+        </section>
+
+        {% include 'common/footer.html' %}
+    </main>
+
+    <script>
+        window.CLIENTE_PLACA = "{{ placa }}";
+    </script>
+    
+    <script src="{{ url_for('static', filename='loja.js') }}"></script>
+</body>
+</html>

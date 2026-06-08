@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ECOMETRIC - Ranking Verde</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    {% include 'common/header.html' %}
+
+    <section class="hero">
+        <div class="hero-gradient"></div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">
+                🏆 Ranking Verde
+            </h1>
+
+            <p class="hero-subtitle">
+                Veículos que mais contribuíram para a redução da emissão de CO₂
+            </p>
+        </div>
+    </section>
+
+    <main class="container">
+
+        <div class="ranking-card" style="margin-bottom: 2rem; height: 350px;">
+            <canvas id="rankingChart"></canvas>
+        </div>
+
+        <div class="ranking-card">
+
+            <table id="rankingTable" class="ranking-table">
+
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Placa</th>
+                        <th>CO₂ Evitado (g)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbody">
+
+                    <tr>
+                        <td colspan="3" style="text-align:center; padding:2rem;">
+                            Carregando ranking...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+    {% include 'common/footer.html' %}
+
+    <script src="{{ url_for('static', filename='ranking.js') }}"></script>
+
+</body>
+
+</html>
