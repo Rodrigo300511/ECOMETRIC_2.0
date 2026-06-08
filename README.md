@@ -1,349 +1,357 @@
 # 🌱 Ecometric — Dashboard de Impacto Ambiental
 
-> **Inteligência Ambiental para Mobilidade Urbana**  
+> **Inteligência Ambiental para Mobilidade Urbana**
 > Transformando cada passagem Taggy em dados concretos de sustentabilidade.
 
 ---
 
-## Visão Geral
+# 📌 Visão Geral
 
-O **Ecometric** é uma aplicação web desenvolvida em **Flask + SQLite** que monitora e quantifica o impacto ambiental gerado pelo uso do sistema Taggy em shoppings e estacionamentos. A cada passagem registada, o sistema calcula automaticamente o CO₂ evitado, o combustível poupado e o tempo economizado — convertendo esses dados em métricas visuais, rankings e um sistema de gamificação com **CapCoins**.
+O **Ecometric** é uma aplicação web desenvolvida com **Flask + SQLite** que monitora e quantifica o impacto ambiental gerado pelo uso do sistema Taggy em shoppings e estacionamentos.
+
+A cada passagem registrada, o sistema calcula automaticamente:
+
+* 🌿 CO₂ evitado
+* ⛽ Combustível poupado
+* ⏱️ Tempo economizado
+
+Esses dados são convertidos em:
+
+* dashboards analíticos;
+* rankings sustentáveis;
+* gráficos temporais;
+* sistema de gamificação com **CapCoins**.
+
+Os usuários podem acumular moedas sustentáveis e trocá-las por recompensas reais na loja integrada do sistema.
 
 ---
 
-## Funcionalidades Principais
+# 🚀 Funcionalidades Principais
 
-| Módulo | Descrição |
-|---|---|
-| **Dashboard Global** | Métricas agregadas de CO₂, tempo, combustível e equivalência em árvores |
-| **Área do Cliente** | Painel individual por placa com histórico de passagens e evolução mensal |
-| **Análise por Categoria** | Comparativo de impacto entre Hatch, Sedan, SUV, Pickup, Híbrido e Elétrico |
-| **Análise Temporal** | Evolução mensal do impacto ambiental com gráficos de linha e barra |
-| **Ranking Verde** | Top 20 veículos com maior CO₂ evitado |
-| **Gestão de Veículos** | Cadastro por placa + modelo com saldo de CapCoins integrado |
-| **Simulador Taggy** | Registro em tempo real de uma passagem, com cálculo de impacto e pontos |
-| **Recompensas** | Catálogo de recompensas sustentáveis resgatáveis por CapCoins |
+| Módulo                   | Descrição                                                           |
+| ------------------------ | ------------------------------------------------------------------- |
+| 📊 Dashboard Global      | Métricas agregadas de CO₂, combustível, tempo e árvores preservadas |
+| 👤 Área do Cliente       | Histórico individual por placa e evolução mensal                    |
+| 🪙 Loja Sustentável      | Resgate de recompensas utilizando CapCoins                          |
+| 🚗 Análise por Categoria | Comparativo entre Hatch, Sedan, SUV, Pickup, Híbrido e Elétrico     |
+| 📈 Análise Temporal      | Evolução mensal com gráficos dinâmicos                              |
+| 🏆 Ranking Verde         | Top 20 veículos com maior CO₂ evitado                               |
+| 🔧 Gestão de Veículos    | Cadastro de placas e controle de saldo                              |
+| ⚡ Simulador Taggy        | Simulação em tempo real de passagens                                |
 
 ---
 
-## Estrutura do Projeto
+# 🗂️ Estrutura do Projeto
 
-```
-ecometric/
 ```text
 ECOMETRIC/
 │
-├── app.py                      # Arquivo principal (Rotas Flask e Sessões)
-├── analytics_export.py         # Script para exportação de dados (Excel/Pandas)
-├── generate_mock_data.py       # Script gerador de passagens fictícias
-├── requirements.txt            # Dependências do projeto Python
-├── ecometric.db                # Banco de dados SQLite (gerado automaticamente)
+├── app.py
+├── analytics_export.py
+├── generate_mock_data.py
+├── requirements.txt
+├── ecometric.db
 │
-├── src/                        # Regras de Negócio e Serviços
+├── src/
 │   ├── __init__.py
-│   ├── database.py             # Conexão com o banco de dados
-│   ├── impact_service.py       # Algoritmos de cálculo de CO₂, tempo e árvores
-│   ├── models.py               # Estrutura de criação das tabelas (DDL)
-│   ├── seed.py                 # População inicial (categorias, modelos, recompensas)
-│   └── services.py             # Lógica transacional e queries principais
+│   ├── database.py
+│   ├── impact_service.py
+│   ├── models.py
+│   ├── seed.py
+│   └── services.py
 │
-├── static/                     # Arquivos Estáticos (Frontend)
-│   ├── style.css               # Design System (Variáveis e estilos globais)
-│   ├── dashboard.js            # Lógica do painel principal (Admin)
-│   ├── cliente.js              # Lógica do painel do cliente e simulador
-│   ├── categorias.js           # Renderização do gráfico Boxplot e métricas
-│   ├── periodos.js             # Gráficos de evolução temporal
-│   ├── ranking.js              # Lógica do pódio verde com ofuscação LGPD
-│   ├── veiculos.js             # Tabela de veículos mascarados
-│   └── login.js                # Fluxo de autenticação assíncrono (Axios)
+├── static/
+│   ├── style.css
+│   ├── dashboard.js
+│   ├── cliente.js
+│   ├── loja.js
+│   ├── categorias.js
+│   ├── periodos.js
+│   ├── ranking.js
+│   ├── veiculos.js
+│   └── login.js
 │
-└── templates/                  # Telas HTML (Jinja2)
-    ├── 404.html / 500.html     # Páginas de erro amigáveis
-    ├── index.html              # Dashboard global
-    ├── login.html              # Porta de entrada unificada
-    ├── cliente.html            # Área exclusiva do titular do veículo
-    ├── categorias.html         # Análise estatística
-    ├── periodos.html           # Histórico mensal
-    ├── ranking.html            # Top veículos sustentáveis
-    └── veiculos.html           # Listagem administrativa
-
-
+└── templates/
+    ├── 404.html
+    ├── 500.html
+    ├── index.html
+    ├── login.html
+    ├── cliente.html
+    ├── loja.html
+    ├── categorias.html
+    ├── periodos.html
+    ├── ranking.html
+    └── veiculos.html
 ```
----
-## 🔐 Credenciais de Acesso (Testes)
-O sistema possui uma porta de entrada única ( /login), mas divide a experiência com base na credencial digitalizada:
-
-Acesso Administrador (Visão Global):
-
-Usuário: admin
-
-Senha: admin123
-
-## Acesso Cliente (Visão Individual/Simulador):
-
-Usuário/Placa: Utilize qualquer placa gerada pelo script de mock (ex: ABC1234). Você pode ver as placas disponíveis logando primeiro como Admin e indo na aba "Veículos".
-
-Senha:  123456 (Senha padrão para todos os clientes simulados)
-
-##  📊 Scripts Analíticos Extras
-Além da interface web, o projeto conta com um script de remoção de dados brutos para planilhas Excel (útil para integração com PowerBI ou Excel).
-
-Para exportação os:
 
 ---
 
-## Instalação e Execução
+# 🔐 Credenciais de Acesso
 
-### Pré-requisitos
+## 👨‍💼 Administrador
 
-- Python 3.9+
-- pip
+| Campo   | Valor      |
+| ------- | ---------- |
+| Usuário | `admin`    |
+| Senha   | `admin123` |
 
-### 1. Clonar o repositório
+---
+
+## 👤 Cliente
+
+| Campo         | Valor                         |
+| ------------- | ----------------------------- |
+| Usuário/Placa | Qualquer placa gerada no mock |
+| Senha         | `123456`                      |
+
+### Exemplo de placas:
+
+```text
+SOA5G69
+ABC1234
+XYZ8A91
+```
+
+> As placas disponíveis podem ser visualizadas na aba **Veículos** do painel administrativo.
+
+---
+
+# 📦 Instalação e Execução
+
+## Pré-requisitos
+
+* Python 3.9+
+* pip
+
+---
+
+## 1️⃣ Clonar o repositório
 
 ```bash
 git clone https://github.com/seu-usuario/ecometric.git
 cd ecometric
 ```
 
-### 2. Criar e ativar ambiente virtual
+---
+
+## 2️⃣ Criar ambiente virtual
+
+### Linux/macOS
 
 ```bash
 python -m venv venv
-
-# Linux/macOS
 source venv/bin/activate
+```
 
-# Windows
+### Windows
+
+```bash
+python -m venv venv
 venv\Scripts\activate
 ```
 
-### 3. Instalar dependências
+---
+
+## 3️⃣ Instalar dependências
 
 ```bash
-pip install flask
+pip install flask pandas openpyxl
 ```
 
-### 4. Inicializar o banco de dados
+---
+
+## 4️⃣ Inicializar banco de dados
 
 ```bash
 python -c "from src.seed import popular_banco; popular_banco()"
 ```
 
-### 5. (Opcional) Gerar dados de demonstração
+---
+
+## 5️⃣ Gerar dados fictícios (Opcional)
 
 ```bash
 python generate_mock_data.py
 ```
 
-### 6. Exportar analytics (opcional)
+---
 
-```bash
-python analytics_export.py
-```
-
-### 7. Iniciar a aplicação
+## 6️⃣ Executar aplicação
 
 ```bash
 python app.py
 ```
 
-Acesse em: **http://localhost:5000**
+Acesse em:
 
----
-
-## Arquitetura da API
-
-Todos os endpoints retornam JSON e seguem o padrão REST.
-
-### Endpoints Públicos
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/` | Dashboard principal |
-| `GET` | `/categorias` | Página de análise por categoria |
-| `GET` | `/periodos` | Página de análise temporal |
-| `GET` | `/ranking` | Página de ranking |
-| `GET` | `/veiculos` | Página de veículos |
-| `GET` | `/health` | Health check da aplicação |
-
-### Endpoints de API
-
-| Método | Endpoint | Descrição |
-|---|---|---|
-| `GET` | `/api/metricas` | Métricas globais de impacto |
-| `GET` | `/api/categorias` | Impacto agregado por categoria |
-| `GET` | `/api/periodos` | Impacto agregado por mês (últimos 12) |
-| `GET` | `/api/ranking` | Top 20 veículos por CO₂ evitado |
-| `GET` | `/api/veiculos` | Lista detalhada de veículos (top 50) |
-| `GET` | `/api/modelos` | Catálogo de modelos disponíveis |
-| `POST` | `/api/cliente/cadastro` | Cadastrar novo veículo |
-| `GET` | `/api/cliente/<placa>` | Painel individual do cliente |
-| `POST` | `/api/cliente/usar_taggy` | Simular uso da Taggy em tempo real |
-
----
-
-## Banco de Dados
-
-O sistema utiliza **SQLite** com o arquivo `ecometric.db` gerado automaticamente na raiz do projeto.
-
-### Diagrama de Tabelas
-
+```text
+http://localhost:5000
 ```
+
+---
+
+# 📊 Scripts Analíticos
+
+O projeto inclui scripts auxiliares para exportação de dados:
+
+| Script                  | Função                   |
+| ----------------------- | ------------------------ |
+| `analytics_export.py`   | Exporta dados para Excel |
+| `generate_mock_data.py` | Gera dados simulados     |
+
+Ideal para integração com:
+
+* Power BI
+* Excel
+* Ferramentas de BI
+
+---
+
+# 🌐 Arquitetura da API
+
+Todos os endpoints retornam dados no formato **JSON** seguindo o padrão REST.
+
+---
+
+# 🖥️ Endpoints de Telas
+
+| Método | Endpoint      | Restrição   | Descrição             |
+| ------ | ------------- | ----------- | --------------------- |
+| GET    | `/`           | Livre/Admin | Dashboard principal   |
+| GET    | `/categorias` | Livre/Admin | Análise por categoria |
+| GET    | `/periodos`   | Livre/Admin | Evolução temporal     |
+| GET    | `/ranking`    | Livre/Admin | Ranking sustentável   |
+| GET    | `/veiculos`   | Livre/Admin | Gestão de veículos    |
+| GET    | `/loja`       | Cliente     | Loja de recompensas   |
+| GET    | `/health`     | Livre       | Health check          |
+
+---
+
+# 🔌 Endpoints da API
+
+| Método | Endpoint                  | Descrição              |
+| ------ | ------------------------- | ---------------------- |
+| GET    | `/api/metricas`           | Métricas globais       |
+| GET    | `/api/categorias`         | Impacto por categoria  |
+| GET    | `/api/periodos`           | Evolução mensal        |
+| GET    | `/api/ranking`            | Ranking verde          |
+| GET    | `/api/veiculos`           | Lista de veículos      |
+| GET    | `/api/recompensas`        | Catálogo da loja       |
+| POST   | `/api/loja/resgatar`      | Resgate de recompensas |
+| POST   | `/api/cliente/cadastro`   | Cadastro de veículo    |
+| GET    | `/api/cliente/<placa>`    | Painel do cliente      |
+| POST   | `/api/cliente/usar_taggy` | Simulação de uso       |
+
+---
+
+# 🗄️ Banco de Dados
+
+O sistema utiliza **SQLite**, com geração automática do arquivo:
+
+```text
+ecometric.db
+```
+
+---
+
+## 📐 Relacionamento das Tabelas
+
+```text
 categorias ──< modelos ──< veiculos ──< passagens
-                                  └──< impacto_ambiental
-                                  └── saldo_capcoins
+                                 ├──< impacto_ambiental
+                                 └── saldo_capcoins
 
-recompensas  (independente)
+recompensas
 ```
-
-### Tabelas
-
-| Tabela | Descrição |
-|---|---|
-| `categorias` | Perfil ambiental dos veículos (consumo, CO₂, combustível) |
-| `modelos` | Modelos de carros cadastrados por marca/ano |
-| `veiculos` | Veículos registados pelos utilizadores (por placa) |
-| `passagens` | Histórico de uso do Taggy com CapCoins ganhos |
-| `impacto_ambiental` | Detalhe de cada impacto: tempo, combustível, CO₂ |
-| `saldo_capcoins` | Saldo atual de pontos por veículo |
-| `recompensas` | Catálogo de recompensas sustentáveis |
 
 ---
 
-## Metodologia de Cálculo
+## 📋 Tabelas
 
-### CO₂ Evitado
+| Tabela            | Descrição                     |
+| ----------------- | ----------------------------- |
+| categorias        | Perfil ambiental dos veículos |
+| modelos           | Modelos cadastrados           |
+| veiculos          | Veículos registrados          |
+| passagens         | Histórico de uso              |
+| impacto_ambiental | Métricas ambientais           |
+| saldo_capcoins    | Saldo de moedas               |
+| recompensas       | Catálogo da loja              |
 
-O cálculo baseia-se no tempo poupado em fila de espera:
+---
 
-```
-tempo_poupado  = 10 min (fila sem Taggy) − 2 min (com Taggy) = 8 min
+# 🌿 Metodologia de Cálculo
+
+## CO₂ Evitado
+
+O cálculo baseia-se no tempo economizado em filas:
+
+```text
+tempo_poupado   = 10 min - 2 min
 litros_poupados = consumo_L/h × (tempo_poupado / 60)
-CO₂_evitado_g   = litros_poupados × fator_CO₂_por_litro
+CO₂_evitado_g   = litros_poupados × fator_CO₂
 ```
-
-### Equivalências Ambientais
-
-| Equivalência | Fator |
-|---|---|
-| Folhas de papel | 1 folha = 5g de CO₂ |
-| Árvores preservadas | 1 árvore = 21.000g de CO₂/ano |
-
-### Parâmetros por Categoria
-
-| Categoria | Consumo (L/h) | Combustível | Fator CO₂ (g/L) |
-|---|---|---|---|
-| Hatch | 0,6 | Gasolina | 2.310 |
-| Sedan | 0,8 | Flex | 2.100 |
-| SUV | 1,2 | Gasolina | 2.310 |
-| Pickup | 1,5 | Diesel | 2.680 |
-| Híbrido | 0,3 | Híbrido | 900 |
-| Elétrico | 0,0 | Elétrico | 0 |
 
 ---
 
-## Sistema de Gamificação — CapCoins
+# 🌳 Equivalências Ambientais
 
-### Pontos por Passagem
+| Equivalência           | Fator                      |
+| ---------------------- | -------------------------- |
+| 📄 Folhas de papel     | 1 folha = 5g CO₂           |
+| 🌳 Árvores preservadas | 1 árvore = 21.000g CO₂/ano |
 
-| Tipo | Pontos Base |
-|---|---|
-| Pedágio | 5 CapCoins |
-| Shopping | 3 CapCoins |
+---
+
+# 🪙 Sistema de Gamificação — CapCoins
+
+## Pontuação por Passagem
+
+| Tipo       | Pontos     |
+| ---------- | ---------- |
+| Pedágio    | 5 CapCoins |
+| Shopping   | 3 CapCoins |
 | Condomínio | 2 CapCoins |
 | Drive-thru | 2 CapCoins |
 
-### Bónus de Frequência Mensal
+---
 
-| Passagens no mês | Bónus |
-|---|---|
-| 10ª passagem | +20 CapCoins |
-| 20ª passagem | +50 CapCoins |
-| 40ª passagem | +100 CapCoins |
+# 🛍️ Catálogo da Loja
 
-### Exemplos de Recompensas
-
-| Recompensa | Custo |
-|---|---|
-| Doação para Reflorestamento | 100 CapCoins |
-| Lavagem Ecológica | 150 CapCoins |
-| Crédito Bike Itaú | 200 CapCoins |
-| Plantio de Árvore com Certificado | 300 CapCoins |
-| Desconto Plano Taggy (30%) | 350 CapCoins |
+| Recompensa                        | Categoria   | Custo |
+| --------------------------------- | ----------- | ----- |
+| Doação para Reflorestamento       | Sustentável | 100   |
+| Lavagem Ecológica                 | Serviço     | 150   |
+| Crédito Bike Itaú                 | Serviço     | 200   |
+| Plantio de Árvore com Certificado | Sustentável | 300   |
+| Desconto Plano Taggy (30%)        | Serviço     | 350   |
 
 ---
 
-## Stack Tecnológica
+# ⚙️ Stack Tecnológica
 
-### Backend
+## Backend
 
-| Tecnologia | Uso |
-|---|---|
-| Python 3.9+ | Linguagem principal |
-| Flask | Framework web |
-| SQLite 3 | Banco de dados relacional |
-
-### Frontend
-
-| Tecnologia | Uso |
-|---|---|
-| HTML5 / CSS3 | Estrutura e estilos |
-| JavaScript (ES2020+) | Lógica do cliente |
-| Chart.js 3.9 | Visualizações e gráficos |
-| Axios 1.4 | Requisições HTTP |
+* Python 3.9+
+* Flask
+* SQLite 3
 
 ---
 
-## Scripts Auxiliares
+## Frontend
 
-### `generate_mock_data.py`
+* HTML5
+* CSS3
+* JavaScript (ES2020+)
+* Chart.js 3.9
+* Axios 1.4
 
-Popula o banco com dados fictícios para fins de demonstração. Gera veículos, passagens históricas e registros de impacto para simular um ambiente de produção com dados variados ao longo do tempo.
+---
 
-```bash
-python generate_mock_data.py
+# 📄 Licença
+
+```text
+🌱 Ecometric © 2026
+Inteligência Ambiental para Mobilidade Urbana
+Reduzindo emissões, um trajeto por vez.
 ```
-
-### `analytics_export.py`
-
-Exporta os dados analíticos do banco para formatos externos (CSV, JSON). Útil para análises externas, relatórios em Excel ou integração com ferramentas de BI.
-
-```bash
-python analytics_export.py
-```
-
----
-
-## Design System
-
-O Ecometric utiliza uma paleta de cores e sistema de variáveis CSS próprios, centrados na identidade sustentável do projeto:
-
-```css
---primary-green:  #10b981   /* Verde principal */
---dark-green:     #047857   /* Verde escuro */
---light-green:    #d1fae5   /* Verde claro */
---sky-blue:       #0ea5e9   /* Azul complementar */
---warning-orange: #f97316   /* Laranja de alerta */
-```
-
----
-
-## Contribuição
-
-1. Faça um fork do repositório
-2. Crie uma branch para a sua feature (`git checkout -b feature/nova-funcionalidade`)
-3. Faça commit das suas alterações (`git commit -m 'feat: adiciona nova funcionalidade'`)
-4. Faça push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
----
-
-## Licença
-
-Este projeto está licenciado sob a **MIT License**.
-
----
-
-*🌱 Ecometric © 2026 — Inteligência Ambiental para Mobilidade Urbana*  
-*Reduzindo emissões, um trajeto por vez.*
