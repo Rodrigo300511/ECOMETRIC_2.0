@@ -14,7 +14,28 @@
 
 <body>
 
+<<<<<<< HEAD
     {% include 'common/header.html' %}
+=======
+    <nav class="navbar">
+        <div class="navbar-container">
+
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">ECOMETRIC</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link active">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link">Veículos</a></li>
+            </ul>
+
+        </div>
+    </nav>
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 
     <section class="hero">
         <div class="hero-gradient"></div>
@@ -64,7 +85,14 @@
 
     </main>
 
+<<<<<<< HEAD
     {% include 'common/footer.html' %}
+=======
+    <footer class="footer">
+        <p>🌱 ECOMETRIC - Dashboard de Impacto Ambiental</p>
+        <p>Desenvolvido para monitoramento sustentável</p>
+    </footer>
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 
     <script src="{{ url_for('static', filename='ranking.js') }}"></script>
 

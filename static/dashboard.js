@@ -1,9 +1,16 @@
 /* ====================================================
+<<<<<<< HEAD
    ECOMETRIC DASHBOARD - SCRIPTS PRINCIPAIS UNIFICADOS E PROTEGIDOS
    ==================================================== */
 
 let charts = {};
 let chartClienteInstance = null; // Instância isolada do gráfico do cliente
+=======
+   ECOMETRIC DASHBOARD - SCRIPTS PRINCIPAIS PROTEGIDOS
+   ==================================================== */
+
+let charts = {};
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 
 // Função global de proteção para ofuscar os caracteres centrais da placa
 function mascararPlaca(placa) {
@@ -12,6 +19,7 @@ function mascararPlaca(placa) {
 }
 
 // ====================================================
+<<<<<<< HEAD
 // INICIALIZAÇÃO BASEADA EM PERFIL DE SESSÃO
 // ====================================================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -46,17 +54,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ====================================================
 // CARREGAR MÉTRICAS PRINCIPAIS (ADMIN/GLOBAL)
+=======
+// INICIALIZAÇÃO
+// ====================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('🌱 Inicializando Dashboard Ecometric Protegido...');
+    
+    await carregarMetricas();
+    await carregarGraficos();
+    
+    console.log('✅ Dashboard carregado com sucesso!');
+});
+
+// ====================================================
+// CARREGAR MÉTRICAS PRINCIPAIS
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 // ====================================================
 async function carregarMetricas() {
     try {
         const response = await axios.get('/api/metricas');
         const dados = response.data;
 
+<<<<<<< HEAD
         // Formatador de números padrão pt-BR
+=======
+        // Formatador de números
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         const formatter = new Intl.NumberFormat('pt-BR', {
             maximumFractionDigits: 2
         });
 
+<<<<<<< HEAD
         // Atualizar valores na tela tratendo os nomes exatos retornados pela API
         if (document.getElementById('co2-value')) {
             document.getElementById('co2-value').textContent = formatter.format(dados.co2_total_g || dados.co2_evitado_g || 0);
@@ -73,11 +101,25 @@ async function carregarMetricas() {
         }
 
         // Atualizar barras de progresso animadas originais
+=======
+        // Atualizar valores
+        document.getElementById('co2-value').textContent = 
+            formatter.format(dados.co2_total_g);
+        document.getElementById('time-value').textContent = 
+            formatter.format(dados.tempo_total_min);
+        document.getElementById('fuel-value').textContent = 
+            formatter.format(dados.combustivel_total_ml);
+        document.getElementById('tree-value').textContent = 
+            dados.equivalente_arvores.toFixed(2);
+
+        // Atualizar barras de progresso (animadas)
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         animarBarra('co2-bar', 60);
         animarBarra('time-bar', 70);
         animarBarra('fuel-bar', 50);
         animarBarra('tree-bar', 80);
 
+<<<<<<< HEAD
         // Atualizar totalizador inferior de passagens
         if (document.getElementById('total-passages')) {
             document.getElementById('total-passages').textContent = formatter.format(dados.total_passagens || 0);
@@ -89,6 +131,17 @@ async function carregarMetricas() {
             const uniqueVehicles = new Set(ranking.data.map(r => r.placa));
             document.getElementById('total-vehicles').textContent = uniqueVehicles.size;
         }
+=======
+        // Atualizar total de passagens e veículos
+        document.getElementById('total-passages').textContent = 
+            formatter.format(dados.total_passagens);
+
+        // Contar número de veículos (da API de ranking)
+        const ranking = await axios.get('/api/ranking');
+        const uniqueVehicles = new Set(ranking.data.map(r => r.placa));
+        document.getElementById('total-vehicles').textContent = 
+            uniqueVehicles.size;
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 
     } catch (error) {
         console.error('❌ Erro ao carregar métricas:', error);
@@ -101,8 +154,11 @@ async function carregarMetricas() {
 // ====================================================
 function animarBarra(elementId, maxWidth) {
     const element = document.getElementById(elementId);
+<<<<<<< HEAD
     if (!element) return;
     
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     let currentWidth = 0;
     const targetWidth = Math.random() * maxWidth + 20;
     
@@ -117,15 +173,25 @@ function animarBarra(elementId, maxWidth) {
 }
 
 // ====================================================
+<<<<<<< HEAD
 // CARREGAR GRÁFICOS GLOBAIS (ADMIN)
+=======
+// CARREGAR GRÁFICOS
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 // ====================================================
 async function carregarGraficos() {
     try {
         await criarGraficoTimeline();
         await criarGraficoCategoria();
+<<<<<<< HEAD
         await criarGraficoRanking(); 
     } catch (error) {
         console.error('❌ Erro ao carregar gráficos globais:', error);
+=======
+        await criarGraficoRanking(); // Este agora irá ocultar as placas das barras
+    } catch (error) {
+        console.error('❌ Erro ao carregar gráficos:', error);
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         mostrarErro('Erro ao criar gráficos');
     }
 }
@@ -134,9 +200,12 @@ async function carregarGraficos() {
 // GRÁFICO: TIMELINE (CO₂ ao longo do tempo)
 // ====================================================
 async function criarGraficoTimeline() {
+<<<<<<< HEAD
     const canvas = document.getElementById('timelineChart');
     if (!canvas) return;
     
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     try {
         const response = await axios.get('/api/periodos');
         const dados = response.data;
@@ -145,8 +214,12 @@ async function criarGraficoTimeline() {
         const co2Data = dados.map(d => d.co2_g);
         const combustivelData = dados.map(d => d.combustivel_ml);
 
+<<<<<<< HEAD
         const ctx = canvas.getContext('2d');
         if (charts.timeline) charts.timeline.destroy();
+=======
+        const ctx = document.getElementById('timelineChart').getContext('2d');
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         
         charts.timeline = new Chart(ctx, {
             type: 'line',
@@ -226,9 +299,12 @@ async function criarGraficoTimeline() {
 // GRÁFICO: CATEGORIAS (Pizza/Doughnut)
 // ====================================================
 async function criarGraficoCategoria() {
+<<<<<<< HEAD
     const canvas = document.getElementById('categoryChart');
     if (!canvas) return;
 
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     try {
         const response = await axios.get('/api/categorias');
         const dados = response.data;
@@ -236,11 +312,17 @@ async function criarGraficoCategoria() {
         const labels = dados.map(d => d.categoria);
         const co2Data = dados.map(d => d.co2_g);
 
+<<<<<<< HEAD
         const ctx = canvas.getContext('2d');
         const cores = ['#10b981', '#047857', '#6d28d9', '#f97316', '#0ea5e9', '#ec4899'];
 
         if (charts.category) charts.category.destroy();
 
+=======
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+        const cores = ['#10b981', '#047857', '#6d28d9', '#f97316', '#0ea5e9', '#ec4899'];
+
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         charts.category = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -288,19 +370,29 @@ async function criarGraficoCategoria() {
 // GRÁFICO: RANKING GLOBAL (Barra horizontal protegida)
 // ====================================================
 async function criarGraficoRanking() {
+<<<<<<< HEAD
     const canvas = document.getElementById('rankingChart');
     if (!canvas) return;
 
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     try {
         const response = await axios.get('/api/ranking');
         const dados = response.data.slice(0, 10);
 
         // PROTEÇÃO: Mascarar rótulos das placas no gráfico geral
+<<<<<<< HEAD
         const labels = dados.map(d => d.placa ? mascararPlaca(d.placa) : 'Veículo');
         const co2Data = dados.map(d => d.co2_g);
 
         const ctx = canvas.getContext('2d');
         if (charts.ranking) charts.ranking.destroy();
+=======
+        const labels = dados.map(d => mascararPlaca(d.placa));
+        const co2Data = dados.map(d => d.co2_g);
+
+        const ctx = document.getElementById('rankingChart').getContext('2d');
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
         
         charts.ranking = new Chart(ctx, {
             type: 'bar',
@@ -354,6 +446,7 @@ async function criarGraficoRanking() {
 }
 
 // ====================================================
+<<<<<<< HEAD
 // MOTOR DE ALTERNÂNCIA DE ABAS (TABS LOGIC)
 // ====================================================
 function alternarAba(abaNome) {
@@ -482,6 +575,134 @@ function carregarDadosCliente(placaForcada = null) {
 function simularUsoTaggy(botao) {
     // Lê o atributo original nos bastidores livre de asteriscos '***'
     const placaReal = document.getElementById('txt-placa-perfil') ? document.getElementById('txt-placa-perfil').getAttribute('data-placa-real') : null;
+=======
+// UTILIDADES / NAVEGAÇÃO
+// ====================================================
+function mostrarErro(mensagem) { console.error(mensagem); }
+
+function atualizarNavegacao() {
+    const path = window.location.pathname;
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+        if (link.getAttribute('href') === path) { link.classList.add('active'); } 
+        else { link.classList.remove('active'); }
+    });
+}
+atualizarNavegacao();
+window.addEventListener('popstate', atualizarNavegacao);
+
+// =========================================================
+// AREA DO CLIENTE
+// =========================================================
+let chartClienteInstance = null;
+
+function alternarAba(abaNome) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = '#333';
+    });
+
+    if (abaNome === 'visao-geral') {
+        document.getElementById('tab-visao-geral').style.display = 'block';
+        event.target.style.backgroundColor = '#2ecc71';
+        event.target.style.color = 'white';
+    } else if (abaNome === 'area-cliente') {
+        document.getElementById('tab-area-cliente').style.display = 'block';
+        event.target.style.backgroundColor = '#2ecc71';
+        event.target.style.color = 'white';
+        carregarModelosDropdown(); 
+    }
+}
+
+function carregarModelosDropdown() {
+    axios.get('/api/modelos').then(response => {
+        const select = document.getElementById('cad-modelo');
+        select.innerHTML = '<option value="">Selecione o Modelo</option>';
+        response.data.forEach(m => {
+            select.innerHTML += `<option value="${m.id}">${m.marca} ${m.nome} (${m.ano})</option>`;
+        });
+    }).catch(err => console.error('Erro ao carregar modelos:', err));
+}
+
+function ejecutarCadastroVeiculo() {
+    const placa = document.getElementById('cad-placa').value;
+    const modeloId = document.getElementById('cad-modelo').value;
+    const msg = document.getElementById('msg-cadastro');
+
+    axios.post('/api/cliente/cadastro', { placa, modelo_id: modeloId })
+        .then(res => {
+            msg.innerHTML = `<span style="color: green;">${res.data.mensagem}</span>`;
+            document.getElementById('cad-placa').value = '';
+        })
+        .catch(err => msg.innerHTML = `<span style="color: red;">${err.response.data.erro}</span>`);
+}
+
+// Buscar e exibir os dados de impacto do cliente (Com Proteção Visual)
+function carregarDadosCliente() {
+    const placaInput = document.getElementById('input-placa-login').value;
+    if (!placaInput) return alert('Por favor, informe uma placa!');
+
+    axios.get(`/api/cliente/${placaInput}`).then(response => {
+        const data = response.data;
+        const placaOriginal = data.perfil.placa || placaInput;
+        
+        document.getElementById('dashboard-individual-cliente').style.display = 'block';
+        
+        // PROTEÇÃO VISUAL AQUI:
+        const txtPerfil = document.getElementById('txt-placa-perfil');
+        txtPerfil.innerText = mascararPlaca(placaOriginal).toUpperCase(); // Exibe mascarado na tela
+        txtPerfil.setAttribute('data-placa-real', placaOriginal);          // Guarda a real nos bastidores
+        
+        document.getElementById('cli-co2').innerText = `${data.perfil.co2_total_g ? data.perfil.co2_total_g.toFixed(1) : 0}g`;
+        document.getElementById('cli-arvores').innerText = data.perfil.equivalente_arvores ? data.perfil.equivalente_arvores.toFixed(2) : 0;
+        document.getElementById('cli-capcoins').innerText = data.perfil.saldo_capcoins || 0;
+
+        const tbody = document.getElementById('tbody-historico-cliente');
+        tbody.innerHTML = '';
+        if (data.historico.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">Ainda não existem registos para este veículo.</td></tr>';
+        } else {
+            data.historico.forEach(p => {
+                const dataFormatada = new Date(p.data_hora).toLocaleString('pt-PT');
+                tbody.innerHTML += `<tr>
+                    <td style="padding:12px 10px;">${dataFormatada}</td>
+                    <td style="padding:12px 10px;">${p.local}</td>
+                    <td style="padding:12px 10px;">${p.tempo_poupado}m</td>
+                    <td style="padding:12px 10px; color:#2ecc71; font-weight:bold;">+${p.capcoins}</td>
+                </tr>`;
+            });
+        }
+
+        const ctx = document.getElementById('chartEvolucaoCliente').getContext('2d');
+        if (chartClienteInstance) chartClienteInstance.destroy();
+        chartClienteInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.evolucao.meses,
+                datasets: [{ 
+                    label: 'CO₂ Evitado (g)', 
+                    data: data.evolucao.co2, 
+                    borderColor: '#2ecc71', 
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)', 
+                    fill: true,
+                    tension: 0.3 
+                }]
+            }
+        });
+    }).catch((err) => {
+        console.error(err);
+        alert('Erro ao procurar dados. Tem a certeza que a placa está correta?');
+    });
+}
+
+// ==========================================
+// SIMULAR USO DA TAGGY EM TEMPO REAL CORRIGIDO
+// ==========================================
+function simularUsoTaggy(botao) {
+    // CORREÇÃO: Lê o atributo invisível de dados que criamos acima para não ler os asteriscos '***'
+    const placaReal = document.getElementById('txt-placa-perfil').getAttribute('data-placa-real');
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     if (!placaReal || placaReal === '-') return alert('Aceda ao seu painel primeiro.');
 
     const textoOriginal = botao.innerHTML;
@@ -489,6 +710,7 @@ function simularUsoTaggy(botao) {
     botao.disabled = true;
     botao.style.backgroundColor = '#e67e22';
 
+<<<<<<< HEAD
     axios.post('/api/cliente/usar_taggy', { placa: placaReal, local: 'Shopping Tacaruna (Demonstração)' })
         .then(response => {
             // Re-alimenta o input oculto de login caso o motor precise ler
@@ -505,6 +727,15 @@ function simularUsoTaggy(botao) {
                 carregarGraficos();
             }
 
+=======
+    // Faz a requisição usando a placa limpa e verdadeira obtida dos bastidores
+    axios.post('/api/cliente/usar_taggy', { placa: placaReal, local: 'Shopping Tacaruna (Demonstração)' })
+        .then(response => {
+            // Atualiza o input de login com a placa real antes de recarregar a tela
+            document.getElementById('input-placa-login').value = placaReal;
+            
+            carregarDadosCliente();
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
             alert('✅ Catraca aberta sem filas!\n\nVocê poupou combustível, ajudou o ambiente e ganhou +3 CapCoins!');
         })
         .catch(error => {
@@ -515,6 +746,7 @@ function simularUsoTaggy(botao) {
             botao.disabled = false;
             botao.style.backgroundColor = '#f39c12';
         });
+<<<<<<< HEAD
 }
 
 // =========================================================
@@ -639,4 +871,6 @@ function mostrarLojaNoCliente() {
     const saldo = saldoElement ? saldoElement.innerText : '0';
     
     alert(`🪙 Bem-vindo à Loja Sustentável Ecometric!\n\nSeu saldo atual é de: ${saldo} CapCoins.\n\nO catálogo de recompensas (descontos em pedágios, estacionamentos e recargas elétricas) estará disponível em breve na próxima atualização do sistema!`);
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 }

@@ -12,7 +12,26 @@
 </head>
 <body>
 
+<<<<<<< HEAD
     {% include 'common/header.html' %}
+=======
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">🌱</span>
+                <span class="logo-text">Ecometric</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/categorias" class="nav-link">Categorias</a></li>
+                <li><a href="/periodos" class="nav-link">Períodos</a></li>
+                <li><a href="/ranking" class="nav-link">Ranking</a></li>
+                <li><a href="/veiculos" class="nav-link active">Veículos</a></li>
+            </ul>
+        </div>
+    </nav>
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
 
     <section class="hero">
         <div class="hero-content">
@@ -44,8 +63,11 @@
                 </tbody>
             </table>
         </section>
+<<<<<<< HEAD
 
         {% include 'common/footer.html' %}
+=======
+>>>>>>> 0bfa46b114c01a7d648b116acf2a68eaefa9c498
     </main>
 
     <script src="{{ url_for('static', filename='veiculos.js') }}"></script>
